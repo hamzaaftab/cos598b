@@ -144,11 +144,11 @@ public class MarkovService extends Service {
         	WifiManager wm = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         	List<WifiConfiguration> remembered = wm.getConfiguredNetworks();
             for (ScanResult result : list) {
-//                for (String ssid : Consts.SSID_WHITELIST) { 
-//                	if (result.SSID.equals(ssid) && result.level >= Consts.MIN_WIFI_POWER) {
-//        				return true;
-//                	}
-//                }
+                for (String ssid : Consts.SSID_WHITELIST) { 
+                	if (result.SSID.equals(ssid) && result.level >= Consts.MIN_WIFI_POWER) {
+        				return true;
+                	}
+                }
             	for (WifiConfiguration config : remembered) { // check in remembered SSIDs
             		if (config.SSID.charAt(0) == '\"' && config.SSID.charAt(config.SSID.length()-1) == '\"') { // SSIDs are usually in "", need to strip those out
             			if (result.SSID.equals(config.SSID.substring(1, config.SSID.length()-1)) && result.level >= Consts.MIN_WIFI_POWER) {
