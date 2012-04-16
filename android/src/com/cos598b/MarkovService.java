@@ -31,7 +31,7 @@ public class MarkovService extends Service {
     private static LocationListener locationListener;
 
     private static Location mLocation = null;
-    private static Boolean mWifiFound = null;
+    private static Integer mWifiPowerLevel = null;
     private static boolean mCollectingData;
     private static boolean mServiceRunning;
 
@@ -79,7 +79,7 @@ public class MarkovService extends Service {
      */
     public synchronized static void onAlarm(Context context) {
         mLocation = null;
-        mWifiFound = null;
+        mWifiPowerLevel = null;
         mCollectingData = true;
         // start wifi scan
         WifiManager wm = (WifiManager) context.getSystemService (Context.WIFI_SERVICE);
@@ -114,11 +114,11 @@ public class MarkovService extends Service {
             LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
             lm.removeUpdates(locationListener);
         }
-        if (mLocation == null || mWifiFound == null) {
-            newPoint(mLocation, mWifiFound, false, context);
+        if (mLocation == null || mWifiPowerLevel == null) {
+            newPoint(mLocation, mWifiPowerLevel, false, context);
         }
         mLocation = null;
-        mWifiFound = null;
+        mWifiPowerLevel = null;
         mCollectingData = false;
     }
 
@@ -127,39 +127,46 @@ public class MarkovService extends Service {
      */
     public synchronized static void onScanResults(Context context) {
         WifiManager w = (WifiManager) context.getSystemService (Context.WIFI_SERVICE);
-        mWifiFound = gotWifi(w.getScanResults(), context);
+        mWifiPowerLevel = gotWifi(w.getScanResults(), context);
         if (mLocation != null && mCollectingData) {
-            newPoint(mLocation, mWifiFound, true, context);
+            newPoint(mLocation, mWifiPowerLevel, true, context);
             mCollectingData = false;
         }
     }
 
     /*
-     * Helper function for determining if wifi is available
+     * Helper function for determining if wifi is available, and returning max power level of available wifi
      */
-    private static boolean gotWifi(List<ScanResult> list, Context context) {
+    private static Integer gotWifi(List<ScanResult> list, Context context) {
+        Integer wifi_power_level = null;
         if (list != null) {
             WifiManager wm = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
             List<WifiConfiguration> remembered = wm.getConfiguredNetworks();
             for (ScanResult result : list) {
                 for (String ssid : Consts.SSID_WHITELIST) {
-                    if (result.SSID.equals(ssid) && result.level >= Consts.MIN_WIFI_POWER) {
-                        return true;
+                    if (result.SSID.equals(ssid)) {
+                        if (wifi_power_level == null || wifi_power_level < result.level) {
+                            wifi_power_level = result.level;
+                        }
                     }
                 }
                 for (WifiConfiguration config : remembered) { // check in remembered SSIDs
                     if (config.SSID.charAt(0) == '\"' && config.SSID.charAt(config.SSID.length()-1) == '\"') { // SSIDs are usually in "", need to strip those out
-                        if (result.SSID.equals(config.SSID.substring(1, config.SSID.length()-1)) && result.level >= Consts.MIN_WIFI_POWER) {
-                            return true;
+                        if (result.SSID.equals(config.SSID.substring(1, config.SSID.length()-1))) {
+                            if (wifi_power_level == null || wifi_power_level < result.level) {
+                                wifi_power_level = result.level;
+                            }
                         }
                     }
-                    else  if (result.SSID.equals(config.SSID) && result.level >= Consts.MIN_WIFI_POWER) {
-                        return true;
+                    else  if (result.SSID.equals(config.SSID)) {
+                        if (wifi_power_level == null || wifi_power_level < result.level) {
+                            wifi_power_level = result.level;
+                        }
                     }
                 }
             }
         }
-        return false;
+        return wifi_power_level;
     }
 
     /*
@@ -167,8 +174,8 @@ public class MarkovService extends Service {
      */
     private synchronized static void onLocation(Location location, Context context) {
         mLocation = location;
-        if (mWifiFound != null && mCollectingData) {
-            newPoint(mLocation, mWifiFound, true, context);
+        if (mWifiPowerLevel != null && mCollectingData) {
+            newPoint(mLocation, mWifiPowerLevel, true, context);
             mCollectingData = false;
         }
     }
@@ -183,69 +190,46 @@ public class MarkovService extends Service {
      * wifiFound: whether we had access to wifi at this point (not eventually)
      * 
      */
-    private static void newPoint(Location location, Boolean wifiFound, boolean valid, Context context) {
+    private static void newPoint(Location location, Integer wifi_power_level, boolean valid, Context context) {
         // if wifi was found
-        if (wifiFound != null && wifiFound) {
-            // mark earlier points as having eventually found wifi
-            for (int i = 0; i < Consts.NUM_MARKOV_STEPS; i++) {
-                if (loc_steps[i] != null && loc_steps[i].getTimeTillWifi() == -1) {
-                    // mark as having found wifi
-                    loc_steps[i].setTimeTillWifi(Consts.TIME_GRANULARITY * (i+1));
+        if (wifi_power_level == null) {
+            wifi_power_level = -1000000; // same large negative number
+        }
 
-                    // add to database
-                    if (loc_steps[i].isValid()) {
-                        DatabaseHelper.addPoint(context, loc_steps[i]);
-                        Utils.toast_test(context, "store point");
-                    }
-
-                    // remove from markov model
-                    loc_steps[i] = null;
-                }
-            }
-
-            // move stuff up
-            for (int i = Consts.NUM_MARKOV_STEPS-1; i > 0; i--) {
-                loc_steps[i] = loc_steps[i-1];
-            }
-            loc_steps[0] = null;
-
-            // add new point
-            if (valid) {
-                DataPoint point_add;
-                point_add = new DataPoint(location.getLatitude(), location.getLongitude(), location.getBearing(), wifiFound, System.currentTimeMillis(), 0, location.getSpeed(), location.getAccuracy());
-                Utils.toast_test(context, "valid point: location found, wifi available");
-                DatabaseHelper.addPoint(context, point_add);
-                Utils.toast_test(context, "store point");
-            } else {
-                Utils.toast_test(context, "invalid point: location not found, wifi available");
+        // add wifi power level to earlier points
+        for (int i = 0; i < Consts.NUM_MARKOV_STEPS; i++) {
+            if (loc_steps[i] != null) {
+                // mark as having found wifi
+                loc_steps[i].addWifiPowerLevel(wifi_power_level);
             }
         }
-        // if wifi was not found
-        else {
-            // store the data point to be removed
-            DataPoint point_last = loc_steps[Consts.NUM_MARKOV_STEPS-1];
 
-            // move stuff up
-            for (int i = Consts.NUM_MARKOV_STEPS-1; i > 0; i--) {
-                loc_steps[i] = loc_steps[i-1];
-            }
+        // store earliest point
+        DataPoint point_last = loc_steps[Consts.NUM_MARKOV_STEPS-1];
 
-            // add new point to markov model
-            DataPoint point_add;
-            if (valid) {
-                point_add = new DataPoint(location.getLatitude(), location.getLongitude(), location.getBearing(), wifiFound, System.currentTimeMillis(), -1, location.getSpeed(), location.getAccuracy());
-                Utils.toast_test(context, "valid point: location found, wifi unavailable");
-            } else {
-                point_add = DataPoint.getInvalid();
-                Utils.toast_test(context, "invalid point: location not found, wifi unavailable");
-            }
-            loc_steps[0] = point_add;
+        // move stuff up
+        for (int i = Consts.NUM_MARKOV_STEPS-1; i > 0; i--) {
+            loc_steps[i] = loc_steps[i-1];
+        }
+        loc_steps[0] = null;
 
-            // add last data point to database
-            if (point_last != null && point_last.isValid()) {
-                DatabaseHelper.addPoint(context, point_last);
-                Utils.toast_test(context, "store point");
-            }
+        // add new point to markov model
+        DataPoint point_add;
+        if (valid) {
+            point_add = new DataPoint(location.getLatitude(), location.getLongitude(), location.getBearing(), System.currentTimeMillis(), location.getSpeed(), location.getAccuracy());
+            point_add.addWifiPowerLevel(wifi_power_level);
+            Utils.toast_test(context, "valid point: location found, wifi unavailable");
+        } else {
+            point_add = DataPoint.getInvalid();
+            point_add.addWifiPowerLevel(wifi_power_level);
+            Utils.toast_test(context, "invalid point: location not found, wifi unavailable");
+        }
+        loc_steps[0] = point_add;
+
+        // add last data point to database
+        if (point_last != null && point_last.isValid()) {
+            DatabaseHelper.addPoint(context, point_last);
+            Utils.toast_test(context, "store point");
         }
     }
 

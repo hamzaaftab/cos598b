@@ -49,10 +49,10 @@ import android.widget.TextView;
 
 
 public class Home extends Activity {
-	// Dialog IDs 
-	private final int DIALOG_GPS_OFF = 0;       // dialog for when GPS is off
-	private final int DIALOG_PROGRESS_SEND = 1; // dialog for progress bar, when sending data
-	
+    // Dialog IDs
+    private final int DIALOG_GPS_OFF = 0;       // dialog for when GPS is off
+    private final int DIALOG_PROGRESS_SEND = 1; // dialog for progress bar, when sending data
+
 
     /* is WiFi connected */
     private boolean isConnectedWiFi() {
@@ -92,22 +92,22 @@ public class Home extends Activity {
 
     private void stop3G() {
         // impossibru
-    }   
-    
+    }
+
     /**
      * thread to send points to backend
      */
     private class SendPointsThread extends Thread {
-    	Handler msgHandler;
-    	
-    	public SendPointsThread(Handler h) {
-    		msgHandler = h;
-    	}
-    	
-    	@Override
+        Handler msgHandler;
+
+        public SendPointsThread(Handler h) {
+            msgHandler = h;
+        }
+
+        @Override
         public void run(){
-    		int total_send = DatabaseHelper.getNumRows(Home.this);
-    		int sent = 0;
+            int total_send = DatabaseHelper.getNumRows(Home.this);
+            int sent = 0;
             while (DatabaseHelper.getNumRows(Home.this) > 0) {
                 Map<String, String> data = DatabaseHelper.popFew(Home.this);
                 // Create a new HttpClient and Post Header
@@ -120,7 +120,7 @@ public class Home extends Activity {
                     nameValuePairs.add(new BasicNameValuePair("lng", data.get(DatabaseHelper.KEY_LNG)));
                     nameValuePairs.add(new BasicNameValuePair("bearing", data.get(DatabaseHelper.KEY_BEARING)));
                     nameValuePairs.add(new BasicNameValuePair("timestamp", data.get(DatabaseHelper.KEY_TIMESTAMP)));
-                    nameValuePairs.add(new BasicNameValuePair("time", data.get(DatabaseHelper.KEY_TIME_TILL_WIFI)));
+                    nameValuePairs.add(new BasicNameValuePair("wifi_power_levels", data.get(DatabaseHelper.KEY_WIFI_POWER_LEVELS)));
                     nameValuePairs.add(new BasicNameValuePair("speed", data.get(DatabaseHelper.KEY_SPEED)));
                     nameValuePairs.add(new BasicNameValuePair("accuracy", data.get(DatabaseHelper.KEY_ACCURACY)));
                     nameValuePairs.add(new BasicNameValuePair("user_id", Utils.getDeviceID(Home.this)));
@@ -137,7 +137,7 @@ public class Home extends Activity {
                         }
                     }
                     Message msg = msgHandler.obtainMessage();
-                    msg.arg1 = (++sent)/total_send;
+                    msg.arg1 = ++sent/total_send;
                     msgHandler.sendMessage(msg);
                 } catch (ClientProtocolException e) {
                     Log.d("Network error", e.toString());
@@ -147,12 +147,13 @@ public class Home extends Activity {
             }
         }
     }
-    
+
     SendPointsThread sendPointsThread;
     ProgressDialog progressDialog;
-    
+
     final Handler progressHandler = new Handler() {
-    	public void handleMessage(Message msg) {
+        @Override
+        public void handleMessage(Message msg) {
             int total = msg.arg1;
             progressDialog.setProgress(total);
             if (total >= 100){
@@ -160,7 +161,7 @@ public class Home extends Activity {
             }
         }
     };
-    
+
     // send data points to back-end
     private void sendPoints() {
         SendPointsThread thread = new SendPointsThread(progressHandler);
@@ -176,7 +177,7 @@ public class Home extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+
         // start markov service for collecting data points
         startService(new Intent(this, MarkovService.class));
 
@@ -197,46 +198,46 @@ public class Home extends Activity {
                 getPredictions();
             }
         });
-        
-        // if GPS is disabled, ask user to turn it on 
-    	// Runs only once, when activity is created
-    	// XXX: Alternately could put it in onResume() to constantly remind user
-    	LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-    	if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-    		showDialog(DIALOG_GPS_OFF);
-    	}
+
+        // if GPS is disabled, ask user to turn it on
+        // Runs only once, when activity is created
+        // XXX: Alternately could put it in onResume() to constantly remind user
+        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            showDialog(DIALOG_GPS_OFF);
+        }
     }
 
     // handler and runnable to update number of points
     private Handler updateHandler = new Handler();
     private Runnable updateRunnable = new Runnable() {
-    	@Override
-    	public void run() {
-    		refreshNumPoints();
-    	}
+        @Override
+        public void run() {
+            refreshNumPoints();
+        }
     };
-    
+
     /**
      * Called every time activity gets focus
      */
     @Override
     protected void onResume() {
         super.onResume();
-        
+
         refreshNumPoints();
     }
-    
+
     /**
      * Called whenever activity loses focus
      * Stops the refreshing of number of data points
      */
     @Override
     protected void onPause() {
-    	super.onPause();
-    	updateHandler.removeCallbacks(updateRunnable);
-    	Log.d("Refresh", "Stop refreshing");
+        super.onPause();
+        updateHandler.removeCallbacks(updateRunnable);
+        Log.d("Refresh", "Stop refreshing");
     }
-    
+
     /**
      * refresh the number of points collected
      * sets timer to refresh points again according to REFRESH_RATE
@@ -247,43 +248,45 @@ public class Home extends Activity {
         tv.setText(Integer.toString(num_points));
         updateHandler.postDelayed(updateRunnable, Consts.REFRESH_RATE*1000); // update at twice the rate of points being found
         Log.d("Refresh", "Refreshed number of datapoints");
-    }  
-    
+    }
+
     /**
      * Dialog to ask user to turn on GPS
      */
     @Override
     protected Dialog onCreateDialog(int id) {
-    	AlertDialog alert = null;
-    	switch (id) {
-    	// if GPS is off
-    	case DIALOG_GPS_OFF: 
-    		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    		builder.setMessage("GPS is turned off. Would you like to turn it on?")
-    			   .setCancelable(false)
-    			   .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-    				   public void onClick(DialogInterface dialog, int id) {
-    					   Intent gpsIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-    					   gpsIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-    					   startActivity(gpsIntent);
-    				   }
-    			   })
-    			   .setNegativeButton("No", new DialogInterface.OnClickListener() {
-    				   public void onClick(DialogInterface dialog, int id) {
-    					   dialog.cancel();
-    				   }
-    			   });
-    		alert = builder.create();   
-    		break;
-    		
-    	// progress bar for sending data
-    	case DIALOG_PROGRESS_SEND:
-    		progressDialog = new ProgressDialog(getApplicationContext());
-    		progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-    		progressDialog.setMessage("Sending...");
-    		progressDialog.setCancelable(false);
-    		break;
-    	}
-    	return alert;
+        AlertDialog alert = null;
+        switch (id) {
+        // if GPS is off
+        case DIALOG_GPS_OFF:
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("GPS is turned off. Would you like to turn it on?")
+            .setCancelable(false)
+            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int id) {
+                    Intent gpsIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    gpsIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(gpsIntent);
+                }
+            })
+            .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int id) {
+                    dialog.cancel();
+                }
+            });
+            alert = builder.create();
+            break;
+
+            // progress bar for sending data
+        case DIALOG_PROGRESS_SEND:
+            progressDialog = new ProgressDialog(getApplicationContext());
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            progressDialog.setMessage("Sending...");
+            progressDialog.setCancelable(false);
+            break;
+        }
+        return alert;
     }
 }

@@ -20,10 +20,7 @@ function addpoints() {
         var point = points[i];
         var lat = point[0];
         var lng = point[1];
-        var angle = point[2];
-        var wifi = point[3];
         var location = new google.maps.LatLng(lat, lng);
-        var color = (wifi) ? "#2500DB" : "#FF0000";
         new google.maps.Marker({
             position: location,
             map: map,

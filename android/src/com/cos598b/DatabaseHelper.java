@@ -15,7 +15,7 @@ import android.database.sqlite.SQLiteStatement;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Database Version
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;       // after adding WIFI_POWER_LEVELS
 
     // Database Name
     private static final String DATABASE_NAME = "droidtn";
@@ -29,7 +29,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String KEY_LNG = "lng";
     public static final String KEY_BEARING = "bearing";
     public static final String KEY_TIMESTAMP = "timestamp";
-    public static final String KEY_TIME_TILL_WIFI = "time_till_wifi";
+    public static final String KEY_WIFI_POWER_LEVELS = "wifi_power_levels";
     public static final String KEY_SPEED = "speed";
     public static final String KEY_ACCURACY = "accuracy";
 
@@ -43,7 +43,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         + KEY_ID + " INTEGER PRIMARY KEY," + KEY_LAT + " REAL,"
                         + KEY_LNG + " REAL," + KEY_BEARING + " REAL,"
                         + KEY_TIMESTAMP + " INTEGER,"
-                        + KEY_TIME_TILL_WIFI + " INTEGER,"
+                        + KEY_WIFI_POWER_LEVELS + " STRING,"
                         + KEY_SPEED + " REAL," + KEY_ACCURACY + " REAL" + ")";
         db.execSQL(CREATE_POINTS_TABLE);
     }
@@ -67,7 +67,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             values.put(KEY_LNG, point.getLng());
             values.put(KEY_BEARING, point.getBearing());
             values.put(KEY_TIMESTAMP, point.getTimestamp());
-            values.put(KEY_TIME_TILL_WIFI, point.getTimeTillWifi());
+            values.put(KEY_WIFI_POWER_LEVELS, point.getWifiPowerLevels());
             values.put(KEY_SPEED, point.getSpeed());
             values.put(KEY_ACCURACY, point.getAccuracy());
 
@@ -95,7 +95,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         List<String> lngList = new ArrayList<String>();
         List<String> bearingList = new ArrayList<String>();
         List<String> timestampList = new ArrayList<String>();
-        List<String> timetillwifiList = new ArrayList<String>();
+        List<String> wifipowerlevelList = new ArrayList<String>();
         List<String> speedList = new ArrayList<String>();
         List<String> accuracyList = new ArrayList<String>();
 
@@ -117,7 +117,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 lngList.add(cursor.getString(2));
                 bearingList.add(cursor.getString(3));
                 timestampList.add(cursor.getString(4));
-                timetillwifiList.add(cursor.getString(5));
+                wifipowerlevelList.add(cursor.getString(5));
                 speedList.add(cursor.getString(6));
                 accuracyList.add(cursor.getString(7));
             } while (cursor.moveToNext());
@@ -132,7 +132,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         data.put(KEY_LNG, Utils.implode(lngList.toArray(new String[0]), ","));
         data.put(KEY_BEARING, Utils.implode(bearingList.toArray(new String[0]), ","));
         data.put(KEY_TIMESTAMP, Utils.implode(timestampList.toArray(new String[0]), ","));
-        data.put(KEY_TIME_TILL_WIFI, Utils.implode(timetillwifiList.toArray(new String[0]), ","));
+        data.put(KEY_WIFI_POWER_LEVELS, Utils.implode(wifipowerlevelList.toArray(new String[0]), ","));
         data.put(KEY_SPEED, Utils.implode(speedList.toArray(new String[0]), ","));
         data.put(KEY_ACCURACY, Utils.implode(accuracyList.toArray(new String[0]), ","));
 

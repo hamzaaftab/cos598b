@@ -6,29 +6,27 @@ package com.cos598b;
 public class DataPoint {
     private double lat;
     private double lng;
-    private float bearing;         // 0 - 360 degrees
-    private boolean wifi_found;    // whether wifi was found at this point
-    private double timestamp;      // ms
-    private int time_till_wifi;    // seconds
-    private boolean valid;         // whether the data point is valid or not (because we did not have gps or something)
-    private float speed;           // speed
-    private float accuracy;        // accuracy of gps reading
+    private float bearing;               // 0 - 360 degrees
+    private double timestamp;            // ms
+    private String wifi_power_levels;    // the wifi power level for the next 10 data points (dot_seperated), the first value is the points own power level
+    private boolean valid;               // whether the data point is valid or not (because we did not have gps or something)
+    private float speed;                 // speed
+    private float accuracy;              // accuracy of gps reading
 
-    public DataPoint(double lat, double lng, float bearing, boolean wifi_found, double timestamp, int time_till_wifi, float speed, float accuracy) {
+    public DataPoint(double lat, double lng, float bearing, double timestamp, float speed, float accuracy) {
         this.lat = lat;
         this.lng = lng;
         this.bearing = bearing;
-        this.wifi_found = wifi_found;
         this.timestamp = timestamp;
-        this.time_till_wifi = time_till_wifi;
-        this.valid = true;
         this.speed = speed;
         this.accuracy = accuracy;
+        this.valid = true;
+        this.wifi_power_levels = "";
     }
 
     // return an invalid datapoint
     public static DataPoint getInvalid() {
-        DataPoint dp = new DataPoint(0,0,0,false,0,Integer.MAX_VALUE, 0, 0);
+        DataPoint dp = new DataPoint(0,0,0,0,0,0);
         dp.valid = false;
         return dp;
     }
@@ -36,11 +34,17 @@ public class DataPoint {
     public double getLat() { return this.lat; }
     public double getLng() { return this.lng; }
     public double getBearing() { return this.bearing; }
-    public boolean getWifiFound() { return this.wifi_found; }
     public double getTimestamp() { return this.timestamp; }
-    public int getTimeTillWifi() { return this.time_till_wifi; }
+    public String getWifiPowerLevels() { return this.wifi_power_levels; }
     public float getSpeed() { return this.speed; }
     public float getAccuracy() { return this.accuracy; }
-    public void setTimeTillWifi(int n) { this.time_till_wifi = n; }
     public boolean isValid() { return this.valid; }
+    public void addWifiPowerLevel(int n) {
+        if (this.wifi_power_levels.equals("")) {
+            this.wifi_power_levels = Integer.toString(n);
+        } else {
+            this.wifi_power_levels = this.wifi_power_levels.concat(".").concat(Integer.toString(n));
+        }
+    }
+
 }

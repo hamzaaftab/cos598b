@@ -9,7 +9,7 @@
   <script type="text/javascript">
     points = [
     {% for point in points %}
-    [{{point.location.lat}}, {{point.location.lon}}, {{point.bearing}}, {% if point.wifi %} true {% else %} false {% endif %}],
+    [{{point.location.lat}}, {{point.location.lon}}, {{point.bearing}}],
     {% endfor %}
     ];
   </script>

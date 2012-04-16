@@ -1,4 +1,4 @@
-"lat" "lng" "bearing" "speed" "accuracy" "got_wifi" "timestamp" "time_to_wifi" "user_id" 
+"lat" "lng" "bearing" "speed" "accuracy" "timestamp" "wifi_power_levels" "user_id" 
 {% for point in points %}
-"{{forloop.counter}}" {{point.location.lat}} {{point.location.lon}} {{point.bearing}} {{ point.speed }} {{point.accuracy}} {% if point.wifi %} 1 {% else %} 0 {% endif %} {{point.timestamp}} {{point.time}} "{{point.user_id}}" 
+"{{forloop.counter}}" {{point.location.lat}} {{point.location.lon}} {{point.bearing}} {{ point.speed }} {{point.accuracy}} {{point.timestamp}} {{point.wifi_power_levels}} "{{point.user_id}}" 
 {% endfor %}

@@ -20,10 +20,7 @@ public class Consts {
     // supported wireless SSID's
     public static final String[] SSID_WHITELIST = {"puwireless", "csvapornet"};
 
-    // minimum wifi power level
-    public static final int MIN_WIFI_POWER = -80;
-    
-    // refresh rate for number of datapoints on main activity (in seconds) 
+    // refresh rate for number of datapoints on main activity (in seconds)
     public static final int REFRESH_RATE = 10;
 
     // ------------------------ HTTP Constants --------------------------------- //
