@@ -20,6 +20,9 @@ import android.os.IBinder;
 
 public class MarkovService extends Service {
 
+    // value to return if no wifi found
+    private static final int WIFI_MIN_POWER_LEVEL = -1000;
+
     // alarm codes
     private static int WAIT_ALARM_CODE = 101;
     private static int SCHEDULED_ALARM_CODE = 102;
@@ -148,6 +151,7 @@ public class MarkovService extends Service {
     private static Integer gotWifi(List<ScanResult> list, Context context) {
         Integer wifi_power_level = null;
         if (list != null) {
+            wifi_power_level = WIFI_MIN_POWER_LEVEL;
             WifiManager wm = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
             List<WifiConfiguration> remembered = wm.getConfiguredNetworks();
             for (ScanResult result : list) {
@@ -201,7 +205,7 @@ public class MarkovService extends Service {
     private static void newPoint(Location location, Integer wifi_power_level, boolean valid, Context context) {
         // if wifi was found
         if (wifi_power_level == null) {
-            wifi_power_level = -1000000; // same large negative number
+            wifi_power_level = WIFI_MIN_POWER_LEVEL; // same large negative number
         }
 
         // add wifi power level to earlier points
