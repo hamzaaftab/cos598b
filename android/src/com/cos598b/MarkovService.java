@@ -125,7 +125,7 @@ public class MarkovService extends Service {
             LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
             lm.removeUpdates(locationListener);
         }
-        if (mLocation == null || mWifiPowerLevel == null) {
+        if (mCollectingData && (mLocation == null || mWifiPowerLevel == null)) {
             newPoint(mLocation, mWifiPowerLevel, false, context);
         }
         mLocation = null;
