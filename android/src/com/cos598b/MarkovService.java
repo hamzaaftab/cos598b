@@ -95,6 +95,10 @@ public class MarkovService extends Service {
         LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         Criteria criteria = new Criteria();
         criteria.setAccuracy(Criteria.ACCURACY_FINE);
+        criteria.setBearingRequired(true);
+        criteria.setBearingAccuracy(Criteria.ACCURACY_HIGH);
+        criteria.setSpeedRequired(true);
+        criteria.setSpeedAccuracy(Criteria.ACCURACY_HIGH);
         try {
             lm.requestSingleUpdate(criteria, locationListener, null);
         } catch (Exception e) {

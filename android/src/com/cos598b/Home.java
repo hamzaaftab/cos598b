@@ -197,6 +197,8 @@ public class Home extends Activity {
             }
         });
 
+        findViewById(R.id.get_button).setVisibility(View.GONE);    // TODO: remove this when we implement predictions
+
         // if GPS is disabled, ask user to turn it on
         // Runs only once, when activity is created
         // XXX: Alternately could put it in onResume() to constantly remind user
