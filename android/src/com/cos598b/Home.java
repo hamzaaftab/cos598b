@@ -133,8 +133,6 @@ public class Home extends Activity {
                     Message msg = progressHandler.obtainMessage();
                     sent += data.get(DatabaseHelper.KEY_LAT).split(",").length;
                     msg.arg1 = (sent/total_send) * 100;
-                    Log.d("Message sent", Integer.toString(((sent)/total_send) * 100));
-                    Log.d("Message sent", Integer.toString(sent) + Integer.toString(total_send));
                     progressHandler.sendMessage(msg);
                 } catch (ClientProtocolException e) {
                     Log.d("Network error", e.toString());
@@ -152,7 +150,6 @@ public class Home extends Activity {
     	public void handleMessage(Message msg) {
             int total = msg.arg1;
             progressDialog.setProgress(total);
-            Log.d("Message received", Integer.toString(total));
             if (total >= 100){
                 dismissDialog(DIALOG_PROGRESS_SEND);
             }
