@@ -230,11 +230,11 @@ public class MarkovService extends Service {
         if (valid) {
             point_add = new DataPoint(location.getLatitude(), location.getLongitude(), location.getBearing(), System.currentTimeMillis(), location.getSpeed(), location.getAccuracy());
             point_add.addWifiPowerLevel(wifi_power_level);
-            Utils.toast_test(context, "location found");
+            Utils.toast_test(context, "location found. power level is ".concat(Integer.toString(wifi_power_level)));
         } else {
             point_add = DataPoint.getInvalid();
             point_add.addWifiPowerLevel(wifi_power_level);
-            Utils.toast_test(context, "location not found");
+            Utils.toast_test(context, "location not found. power level is ".concat(Integer.toString(wifi_power_level)));
         }
         loc_steps[0] = point_add;
 
