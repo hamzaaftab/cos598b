@@ -88,6 +88,8 @@ public class MarkovService extends Service {
         } else {
             // uh oh. wifi is probably off
             Utils.toast(context, "DroiDTN: Cannot scan for wifi availability. Please check if wifi on.");
+
+            mCollectingData = false;
         }
         // start gps scan
         LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
@@ -98,6 +100,8 @@ public class MarkovService extends Service {
         } catch (Exception e) {
             // uh oh. GPS is probably off
             Utils.toast(context, "DroiDTN: Cannot request location. Please check if the GPS Setting is on.");
+
+            mCollectingData = false;
         }
         // alarm for when we dont get location/scan in time
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
@@ -218,11 +222,11 @@ public class MarkovService extends Service {
         if (valid) {
             point_add = new DataPoint(location.getLatitude(), location.getLongitude(), location.getBearing(), System.currentTimeMillis(), location.getSpeed(), location.getAccuracy());
             point_add.addWifiPowerLevel(wifi_power_level);
-            Utils.toast_test(context, "valid point: location found, wifi unavailable");
+            Utils.toast_test(context, "location found");
         } else {
             point_add = DataPoint.getInvalid();
             point_add.addWifiPowerLevel(wifi_power_level);
-            Utils.toast_test(context, "invalid point: location not found, wifi unavailable");
+            Utils.toast_test(context, "location not found");
         }
         loc_steps[0] = point_add;
 
