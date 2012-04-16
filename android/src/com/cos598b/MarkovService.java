@@ -3,11 +3,9 @@ package com.cos598b;
 import java.util.List;
 
 import android.app.AlarmManager;
-import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Criteria;
 import android.location.Location;
@@ -19,7 +17,6 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.provider.Settings;
 
 public class MarkovService extends Service {
 
@@ -53,7 +50,7 @@ public class MarkovService extends Service {
     /*
      * called when the service is started
      */
-    private void onStart() {   	
+    private void onStart() {
         // setup listener for location updates
         locationListener = new LocationListener() {
             @Override
@@ -133,6 +130,7 @@ public class MarkovService extends Service {
         mWifiFound = gotWifi(w.getScanResults(), context);
         if (mLocation != null && mCollectingData) {
             newPoint(mLocation, mWifiFound, true, context);
+            mCollectingData = false;
         }
     }
 
@@ -141,23 +139,23 @@ public class MarkovService extends Service {
      */
     private static boolean gotWifi(List<ScanResult> list, Context context) {
         if (list != null) {
-        	WifiManager wm = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-        	List<WifiConfiguration> remembered = wm.getConfiguredNetworks();
+            WifiManager wm = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+            List<WifiConfiguration> remembered = wm.getConfiguredNetworks();
             for (ScanResult result : list) {
-                for (String ssid : Consts.SSID_WHITELIST) { 
-                	if (result.SSID.equals(ssid) && result.level >= Consts.MIN_WIFI_POWER) {
-        				return true;
-                	}
+                for (String ssid : Consts.SSID_WHITELIST) {
+                    if (result.SSID.equals(ssid) && result.level >= Consts.MIN_WIFI_POWER) {
+                        return true;
+                    }
                 }
-            	for (WifiConfiguration config : remembered) { // check in remembered SSIDs
-            		if (config.SSID.charAt(0) == '\"' && config.SSID.charAt(config.SSID.length()-1) == '\"') { // SSIDs are usually in "", need to strip those out
-            			if (result.SSID.equals(config.SSID.substring(1, config.SSID.length()-1)) && result.level >= Consts.MIN_WIFI_POWER) {
-            				return true;
-            			}
-            		}
-            		else  if (result.SSID.equals(config.SSID) && result.level >= Consts.MIN_WIFI_POWER) {
-        				return true;
-        			}
+                for (WifiConfiguration config : remembered) { // check in remembered SSIDs
+                    if (config.SSID.charAt(0) == '\"' && config.SSID.charAt(config.SSID.length()-1) == '\"') { // SSIDs are usually in "", need to strip those out
+                        if (result.SSID.equals(config.SSID.substring(1, config.SSID.length()-1)) && result.level >= Consts.MIN_WIFI_POWER) {
+                            return true;
+                        }
+                    }
+                    else  if (result.SSID.equals(config.SSID) && result.level >= Consts.MIN_WIFI_POWER) {
+                        return true;
+                    }
                 }
             }
         }
@@ -171,6 +169,7 @@ public class MarkovService extends Service {
         mLocation = location;
         if (mWifiFound != null && mCollectingData) {
             newPoint(mLocation, mWifiFound, true, context);
+            mCollectingData = false;
         }
     }
 
