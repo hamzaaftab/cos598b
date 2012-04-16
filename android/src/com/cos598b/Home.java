@@ -97,13 +97,7 @@ public class Home extends Activity {
     /**
      * thread to send points to backend
      */
-    private class SendPointsThread extends Thread {
-    	Handler msgHandler;
-    	
-    	public SendPointsThread(Handler h) {
-    		msgHandler = h;
-    	}
-    	
+    private class SendPointsThread extends Thread {  	
     	@Override
         public void run(){
     		int total_send = DatabaseHelper.getNumRows(Home.this);
@@ -136,9 +130,12 @@ public class Home extends Activity {
                             attempt = attempt + 1;
                         }
                     }
-                    Message msg = msgHandler.obtainMessage();
-                    msg.arg1 = (++sent)/total_send;
-                    msgHandler.sendMessage(msg);
+                    Message msg = progressHandler.obtainMessage();
+                    sent += data.get(DatabaseHelper.KEY_LAT).split(",").length;
+                    msg.arg1 = (sent/total_send) * 100;
+                    Log.d("Message sent", Integer.toString(((sent)/total_send) * 100));
+                    Log.d("Message sent", Integer.toString(sent) + Integer.toString(total_send));
+                    progressHandler.sendMessage(msg);
                 } catch (ClientProtocolException e) {
                     Log.d("Network error", e.toString());
                 } catch (IOException e) {
@@ -155,6 +152,7 @@ public class Home extends Activity {
     	public void handleMessage(Message msg) {
             int total = msg.arg1;
             progressDialog.setProgress(total);
+            Log.d("Message received", Integer.toString(total));
             if (total >= 100){
                 dismissDialog(DIALOG_PROGRESS_SEND);
             }
@@ -163,7 +161,8 @@ public class Home extends Activity {
     
     // send data points to back-end
     private void sendPoints() {
-        SendPointsThread thread = new SendPointsThread(progressHandler);
+    	if (DatabaseHelper.getNumRows(Home.this) <= 0) return;
+        SendPointsThread thread = new SendPointsThread();
         showDialog(DIALOG_PROGRESS_SEND);
         thread.start();
     }
@@ -254,7 +253,6 @@ public class Home extends Activity {
      */
     @Override
     protected Dialog onCreateDialog(int id) {
-    	AlertDialog alert = null;
     	switch (id) {
     	// if GPS is off
     	case DIALOG_GPS_OFF: 
@@ -273,17 +271,17 @@ public class Home extends Activity {
     					   dialog.cancel();
     				   }
     			   });
-    		alert = builder.create();   
-    		break;
+    		AlertDialog alert= builder.create();   
+    		return alert;
     		
     	// progress bar for sending data
     	case DIALOG_PROGRESS_SEND:
-    		progressDialog = new ProgressDialog(getApplicationContext());
+    		progressDialog = new ProgressDialog(Home.this);
     		progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
     		progressDialog.setMessage("Sending...");
     		progressDialog.setCancelable(false);
-    		break;
+    		return progressDialog;
     	}
-    	return alert;
+    	return null;
     }
 }
