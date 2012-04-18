@@ -9,7 +9,7 @@
   <script type="text/javascript">
     points = [
     {% for point in points %}
-    [{{point.location.lat}}, {{point.location.lon}}, {{point.bearing}}],
+    [{{point.location.lat}},{{point.location.lon}}],
     {% endfor %}
     ];
   </script>
