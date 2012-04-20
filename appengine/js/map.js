@@ -20,10 +20,13 @@ function addpoints() {
         var point = points[i];
         var lat = point[0];
         var lng = point[1];
-        var location = new google.maps.LatLng(lat, lng);
-        new google.maps.Marker({
-            position: location,
-            map: map,
-        });
+        var power = point[2].split('.',1);
+        if ((power >= min_power) && (power <= max_power)) {
+            var location = new google.maps.LatLng(lat, lng);
+            new google.maps.Marker({
+                position: location,
+                map: map,
+            });
+        }
     }
 }

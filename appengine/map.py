@@ -10,8 +10,16 @@ import entities
 
 class MapPage(webapp.RequestHandler):
     def get(self):
+        min_power = self.request.get('min_power')
+        if (not min_power):
+            min_power = -1000
+        max_power = self.request.get('max_power')
+        if (not max_power):
+            max_power = 0
         template_values = {
             'points': entities.Point.all(),
+            'min_power' : min_power,
+            'max_power' : max_power,
         }
         path = os.path.join(os.path.dirname(__file__), 'map.html')
         self.response.out.write(template.render(path, template_values))
