@@ -21,7 +21,8 @@ function addpoints() {
         var lat = point[0];
         var lng = point[1];
         var power = point[2].split('.',1);
-        if ((power >= min_power) && (power <= max_power)) {
+        var accuracy = point[3];
+        if ((power >= min_power) && (power <= max_power) && (accuracy < min_accuracy)) {
             var location = new google.maps.LatLng(lat, lng);
             new google.maps.Marker({
                 position: location,

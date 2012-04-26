@@ -16,10 +16,14 @@ class MapPage(webapp.RequestHandler):
         max_power = self.request.get('max_power')
         if (not max_power):
             max_power = 0
+        min_accuracy = self.request.get('min_accuracy')
+        if (not min_accuracy):
+            min_accuracy = 1000
         template_values = {
             'points': entities.Point.all(),
             'min_power' : min_power,
             'max_power' : max_power,
+            'min_accuracy' : min_accuracy,
         }
         path = os.path.join(os.path.dirname(__file__), 'map.html')
         self.response.out.write(template.render(path, template_values))

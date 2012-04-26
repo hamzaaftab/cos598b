@@ -9,11 +9,12 @@
   <script type="text/javascript">
     points = [
     {% for point in points %}
-    [{{point.location.lat}},{{point.location.lon}},"{{point.wifi_power_levels}}"],
+    [{{point.location.lat}},{{point.location.lon}},"{{point.wifi_power_levels}}", {{point.accuracy}}],
     {% endfor %}
     ];
     min_power = {{min_power}};
     max_power = {{max_power}};
+    min_accuracy = {{min_accuracy}};
   </script>
   <body onload="initialize()">
     <div id="map_canvas" style="width:100%; height:100%"></div>
