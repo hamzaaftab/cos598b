@@ -28,9 +28,9 @@ prepare_data <- function() {
     # convert timestamp to time of day (in seconds)
     temp <- as.POSIXlt(data$timestamp/1000, 'EST', origin="1970-01-01");
     data$time <- temp$sec + temp$min * 60 + temp$hour * 60 * 60;
-    data$wday <- temp$wday;
     
     # Get day of the week
+    data$wday <- temp$wday;
     
     # Convert user_id to user number (1 to NUM_USERS)
     temp <- unique(data$user_id);
