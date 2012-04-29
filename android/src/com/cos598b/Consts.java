@@ -6,6 +6,7 @@ public class Consts {
     // ------------------------ Markov Constants ------------------------------- //
 
     // time granularity for location updates (in seconds)
+
     public static final int TIME_GRANULARITY = 10;
 
     // maximum wait for a gps location / wifi scan to return (in seconds)
