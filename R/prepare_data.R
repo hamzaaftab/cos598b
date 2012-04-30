@@ -28,9 +28,9 @@ prepare_data <- function() {
     # convert timestamp to time of day (in seconds)
     temp <- as.POSIXlt(data$timestamp/1000, 'EST', origin="1970-01-01");
     data$time <- temp$sec + temp$min * 60 + temp$hour * 60 * 60;
-    data$wday <- temp$wday;
     
     # Get day of the week
+    data$wday <- temp$wday;
     
     # Convert user_id to user number (1 to NUM_USERS)
     temp <- unique(data$user_id);
@@ -63,6 +63,7 @@ prepare_data <- function() {
     data$timestamp <- NULL;
     data$wifi_power_levels <- NULL
     
+    row.names(data) <- 1:nrow(data)
     # Write data
     write.table(data, "prepared_data.txt");
 }
