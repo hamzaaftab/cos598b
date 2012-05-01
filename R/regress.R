@@ -1,6 +1,6 @@
 
 #[1] "lat"          "lng"          "bearing"      "speed"        "user_id"     
-#[6] "time"         "wday"         "got_wifi"     "time_to_wifi"
+#[6] "time"         "wday"         "time_to_wifi"
 
 regress <- function(data) {
   # constants
@@ -16,6 +16,7 @@ regress <- function(data) {
   lat_div <- 4;
   lng_div <- 4;
   lambda <- seq(1,4,0.4)
+  num_folds <- 5
 
 
   folds <- sample(1:num_folds, nrow(data), replace=TRUE)

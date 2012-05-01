@@ -50,10 +50,8 @@ prepare_data <- function() {
         l <- length(levels);
         temp = which(levels >= power_threshold);
         if (length(temp) == 0) {
-            data$got_wifi[point] <- FALSE;
-            data$time_to_wifi[point] <- -1;
+            data$time_to_wifi[point] <- markov_length;
         } else {
-            data$got_wifi[point] <- TRUE;
             data$time_to_wifi[point] <- (temp[1] - 1) / (l - 1) * markov_length;
         }
     }
