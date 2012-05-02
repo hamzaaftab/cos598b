@@ -19,6 +19,11 @@ prepare_data <- function() {
     # Remove inaccurate readings
     data <- data[which(data$accuracy <= accuracy_threshold),];
     
+    # Remove values where speed, bearing or accuracy was 0, which indicates that they were not available
+    data <- data[which(data$accuracy > 0),];
+    data <- data[which(data$speed > 0),];
+    data <- data[which(data$bearing > 0),];
+    
     # Filter out of bound locations
     data <- data[which(data$lat <= lat_max),];
     data <- data[which(data$lat >= lat_min),];
