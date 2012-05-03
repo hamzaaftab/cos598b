@@ -45,6 +45,7 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.TextView;
 
 
@@ -176,9 +177,6 @@ public class Home extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // start markov service for collecting data points
-        startService(new Intent(this, MarkovService.class));
-
         setContentView(R.layout.main);
         findViewById(R.id.send_button).setOnClickListener(new OnClickListener() {
             @Override
@@ -193,11 +191,25 @@ public class Home extends Activity {
         findViewById(R.id.get_button).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                getPredictions();
+                if (isConnectedWiFi() || isConnectedMobile()) {
+                    getPredictions();
+                } else {
+                    Utils.toast(Home.this, "DroiDTN: Internet Connection is unavailable. Please try again later.");
+                }
             }
         });
-
-        findViewById(R.id.get_button).setVisibility(View.GONE);    // TODO: remove this when we implement predictions
+        findViewById(R.id.service_button).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View arg0) {
+                if (MarkovService.isServiceRunning()) {
+                    ((Button)findViewById(R.id.service_button)).setText(R.string.service_not_running);
+                    MarkovService.stopService(Home.this);
+                } else {
+                    ((Button)findViewById(R.id.service_button)).setText(R.string.service_running);
+                    MarkovService.startService(Home.this);
+                }
+            }
+        });
 
         // if GPS is disabled, ask user to turn it on
         // Runs only once, when activity is created
@@ -223,6 +235,12 @@ public class Home extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+
+        if (MarkovService.isServiceRunning()) {
+            ((Button)findViewById(R.id.service_button)).setText(R.string.service_running);
+        } else {
+            ((Button)findViewById(R.id.service_button)).setText(R.string.service_not_running);
+        }
 
         refreshNumPoints();
     }

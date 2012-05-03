@@ -4,4 +4,6 @@
     <string name="num_points">Number of data points collected:</string>
     <string name="send_points">Send data points to Server</string>
     <string name="get_pred">Get predictions from Server</string>
+    <string name="service_running">Stop collecting data points</string>
+    <string name="service_not_running">Start collecting data points</string>
 </resources>

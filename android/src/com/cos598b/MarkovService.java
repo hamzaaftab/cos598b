@@ -28,7 +28,7 @@ public class MarkovService extends Service {
     private static int SCHEDULED_ALARM_CODE = 102;
 
     /* location model - Markov chain of 10 steps */
-    private static DataPoint[] loc_steps = new DataPoint[Consts.NUM_MARKOV_STEPS];
+    private static DataPoint[] loc_steps;
 
     /* location tracking */
     private static LocationListener locationListener;
@@ -48,6 +48,32 @@ public class MarkovService extends Service {
             mServiceRunning = true;
         }
         return super.onStartCommand(intent, flags, startId);
+    }
+
+    /*
+     * Is the data collection service running
+     */
+    public static boolean isServiceRunning() {
+        return mServiceRunning;
+    }
+
+    /*
+     * Stop collecting data
+     */
+    public static void stopService(Context context) {
+        context.stopService(new Intent(context, MarkovService.class));
+        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent newintent = new Intent(context, ScheduledAlarmReceiver.class);
+        PendingIntent operation = PendingIntent.getBroadcast(context, SCHEDULED_ALARM_CODE, newintent, PendingIntent.FLAG_UPDATE_CURRENT);
+        am.cancel(operation);
+    }
+
+    /*
+     * Start collecting data
+     */
+    public static void startService(Context context) {
+        loc_steps = new DataPoint[Consts.NUM_MARKOV_STEPS];
+        context.startService(new Intent(context, MarkovService.class));
     }
 
     /*
