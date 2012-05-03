@@ -20,25 +20,7 @@ cluster <- function(data) {
   clustering_data <- data[, c('lat', 'lng', 'bearing')]
   clusters <- kmeans(clustering_data, num_clusters)
   
-  print(clusters$centers[,1])
-  for (i in 1:num_clusters) {
-    indices_in_cluster <- which(clusters$cluster == i)
-    if (length(indices_in_cluster) > 0) {
-      data_in_cluster <- data[indices_in_cluster,]
-      mean_time_to_wifi <- mean(data_in_cluster$time_to_wifi)
-
-      print('a')
-      print(data_in_cluster$time_to_wifi)
-      print('b')
-      print(mean_time_to_wifi)
-      
-      predictive_dist <- predictive_dist + sum(abs(data_in_cluster$time_to_wifi - mean_time_to_wifi))
-      count <- count + length(indices_in_cluster)
-      count_cluster <- count_cluster + 1
-    }
-  }
-  print(predictive_dist/count)
-  print(count)
+  print(clusters$centers)
 }
 
 require(MASS)
