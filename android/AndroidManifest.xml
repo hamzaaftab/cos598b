@@ -37,6 +37,11 @@
 				<action android:name="android.net.wifi.SCAN_RESULTS"/>
 			</intent-filter>
 		</receiver>
+		<receiver android:name=".PredictionRequestReceiver">
+			<intent-filter>
+				<action android:name="com.cos598b.request"/>
+			</intent-filter>
+		</receiver>
     </application>
 
 </manifest>
