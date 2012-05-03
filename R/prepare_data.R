@@ -7,10 +7,24 @@ prepare_data <- function() {
     output_file <- "prepared_data.txt";
     power_threshold <- -70;
     accuracy_threshold <- 25;
-    lat_max <- 40.3530;
-    lat_min <- 40.3390;
-    lng_min <- -74.6660;
-    lng_max <- -74.6440;
+
+    # Dod bounds
+    lat_max <- 40.3470
+    lat_min <- 40.3460
+    lng_min <- -74.6600
+    lng_max <- -74.6570
+
+    # CS bldg bounds
+    #lat_max <- 40.3510
+    #lat_min <- 40.3490
+    #lng_min <- -74.6540
+    #lng_max <- -74.6520
+    
+    # Princeton bounds
+    #lat_max <- 40.3530;
+    #lat_min <- 40.3390;
+    #lng_min <- -74.6660;
+    #lng_max <- -74.6440;
     markov_length = 10*60;
 
     # Read data

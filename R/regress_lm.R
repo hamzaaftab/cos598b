@@ -1,14 +1,13 @@
+# regression with simple lm
+# 5-fold cross validation with folds calculated globally
 
-#[1] "lat"          "lng"          "bearing"      "speed"        "user_id"     
-#[6] "time"         "wday"         "time_to_wifi"
-
-regress <- function(data) {
+regress_lm <- function(data) {
   # constants
-  lat_max <- 40.3530;
-  lat_min <- 40.3390;
+    lat_max <- 40.3470
+    lat_min <- 40.3460
+    lng_min <- -74.6600
+    lng_max <- -74.6570
   lat_range <- lat_max - lat_min
-  lng_min <- -74.6660;
-  lng_max <- -74.6440;
   lng_range <- lng_max - lng_min
 
   # parameters
@@ -19,9 +18,9 @@ regress <- function(data) {
   num_folds <- 5
 
   # prediction distance
-  pred_dist <- matrix(0,length(lambda),1)
+  pred_dist <- 0
 
-  #count<-0
+  count<-0
 
   folds <- sample(1:num_folds, nrow(data), replace=TRUE)
   for (k in 1:num_folds) {
@@ -65,41 +64,28 @@ regress <- function(data) {
 						       data_in_fold$lng     >= lng_min_div     &
 						       data_in_fold$lng     <  lng_max_div, arr.ind=TRUE)]
 
-	  #print(indices_div_out_fold)
-	  #print(indices_div_in_fold)
-
 	  if (length(indices_div_out_fold) > 0) {
 	    # train model on out of fold data in this lat/lng/bearing division
-	    model <- lm.ridge(time_to_wifi ~ speed+time+wday, data=data_out_fold[indices_div_out_fold,], lambda=lambda)
+	    model <- lm(time_to_wifi ~ speed+time+wday, data=data_out_fold[indices_div_out_fold,])
 
 	    # coefficients of ridge model
 	    coeff <- coef(model)
 
-	    #print(coeff)
-	    #print(coeff[,'speed'])
 	    # compute cumulative L1 distance
-	    for (i in 1:length(lambda)) { # for all values of lambda
-	      for (j in 1:length(indices_div_in_fold)) { # for all in fold data in the lat/lng/bearing division
-		#count<-count+1
-		pred_val <- coeff[i, 1] + (coeff[i, 'speed'] * data_in_fold[indices_div_in_fold[j], 'speed']) + (coeff[i, 'time'] * data_in_fold[indices_div_in_fold[j], 'time']) + (coeff[i, 'wday'] * data_in_fold[indices_div_in_fold[j], 'wday'])
-		pred_dist[i] = pred_dist[i] + abs(pred_val - data_in_fold[indices_div_in_fold[j], 'time_to_wifi'])
-		#print(paste("A:", pred_val))
-		#print(paste("B:", data_in_fold[indices_div_in_fold[j], 'time_to_wifi']))
-		#print(paste("C:", i, pred_dist[i]))
-	      }
-	    }
+	    pred_val <- predict(model, data_in_fold[indices_div_in_fold,])
+	    pred_dist <- pred_dist + sum(abs(pred_val - data_in_fold[indices_div_in_fold, 'time_to_wifi']))
+	    count <- count + length(indices_div_in_fold)
 	  }
 	}
       }
     }
   }
-  #print(pred_dist)
-  pred_dist = pred_dist/nrow(data)
+  pred_dist = pred_dist/count
   print(pred_dist)
-  #print(count)
+  print(count)
 }
 
 require(MASS)
 input_file <- "prepared_data.txt";
 data <- read.table(input_file)
-regress(data)
+regress_lm(data)
