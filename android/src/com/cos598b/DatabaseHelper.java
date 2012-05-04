@@ -123,8 +123,37 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Predict time_to_wifi (in seconds)
     private int predict(double lat, double lng, double bearing, double speed, double accuracy, double timestamp) {
-        // TODO: Actually implement this
-        return 100;
+        // fetch all clusters
+        List<Double> lat_list = new ArrayList<Double>();
+        List<Double> lng_list = new ArrayList<Double>();
+        List<Double> bearing_list = new ArrayList<Double>();
+        List<Integer> time_list = new ArrayList<Integer>();
+        String selectQuery = "SELECT * FROM " + TABLE_PREDICTION;
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        if (cursor.moveToFirst()) {
+            do {
+                lat_list.add(Double.parseDouble(cursor.getString(1)));
+                lng_list.add(Double.parseDouble(cursor.getString(2)));
+                bearing_list.add(Double.parseDouble(cursor.getString(3)));
+                time_list.add(Integer.parseInt(cursor.getString(4)));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close(); // Closing database connection
+
+        // find closest cluster
+        double min_dist = Integer.MAX_VALUE;
+        int best_time = Integer.MAX_VALUE;
+        for (int i = 0; i < time_list.size(); i++) {
+            double dist = Math.pow(lat - lat_list.get(i),2)+Math.pow(lng - lng_list.get(i),2)+Math.pow((bearing - bearing_list.get(i))*Consts.BEARING_MULTIPLIER,2);
+            if (dist < min_dist) {
+                min_dist = dist;
+                best_time = time_list.get(i);
+            }
+        }
+
+        return best_time;
     }
 
     // Retrieve a few data points and remove them from the database
