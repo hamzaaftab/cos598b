@@ -70,18 +70,24 @@ L1 <- function(data, lat_div_size, lng_div_size, bearing_div_size) {
     # Actual values
     actual <- data$time_to_wifi;
     
-    # Return L1
-    mean(abs(actual - predicted))
+    # Find L1 error
+    error <- abs(predicted - actual);
+    
+    # Remove outliers
+    error <- error[which(error < median(error) + 1.5*IQR(error))];
+    
+    # Return error
+    mean(error)
 }
 
 # Libraries
 library('MASS')
 
 # Constants (make sure they stay in sync across all files)
-    lat_max <- 40.3510
-    lat_min <- 40.3490
-    lng_min <- -74.6540
-    lng_max <- -74.6520
+lat_max <- 40.3530;
+lat_min <- 40.3390;
+lng_min <- -74.6660;
+lng_max <- -74.6440;
 
 # Read data
 data <- read.table("prepared_data.txt");
@@ -89,7 +95,7 @@ data <- read.table("prepared_data.txt");
 # Values to try
 lat_div_size_iter <- seq(0.005, 0.05, 0.005);
 lng_div_size_iter <- seq(0.005, 0.05, 0.005);
-bearing_div_size_iter <- seq(10, 90, 10);
+bearing_div_size_iter <- seq(20, 90, 10);
 
 # Iterate
 best_lat_div_size <- 0;
