@@ -55,8 +55,8 @@ import android.widget.TextView;
 
 public class Home extends Activity {
     // Dialog IDs
-    private final int DIALOG_GPS_OFF = 0;       // dialog for when GPS is off
-    private final int DIALOG_PROGRESS_SEND = 1; // dialog for progress bar, when sending data
+    private final int DIALOG_GPS_OFF = 0;          // dialog for when GPS is off
+    private final int DIALOG_PROGRESS_SEND = 1;    // dialog for progress bar, when sending data
 
 
     /* is WiFi connected */
@@ -186,7 +186,6 @@ public class Home extends Activity {
                     BufferedReader br = new BufferedReader(new InputStreamReader(instream, "UTF-8"));
                     String line;
                     DatabaseHelper.deletePredictions(this);
-                    int count = 0;
                     while ((line = br.readLine()) != null) {
                         String[] parameters = line.split(" ");
                         double lat = Double.parseDouble(parameters[0]);
@@ -195,7 +194,7 @@ public class Home extends Activity {
                         int time_to_wifi = (int) Double.parseDouble(parameters[3]);
                         DatabaseHelper.addPrediction(this, lat, lng, bearing, time_to_wifi);
                     }
-                    return;
+                    break;
                 } else {
                     attempt = attempt + 1;
                 }
