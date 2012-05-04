@@ -11,7 +11,7 @@ cluster <- function(data) {
   lng_range <- lng_max - lng_min
 
   # parameters
-  num_clusters <- 200
+  num_clusters <- 400
   # Bearing will be reduced by this much for kmeans
   bearing_multiplier = 1/18000;
 
