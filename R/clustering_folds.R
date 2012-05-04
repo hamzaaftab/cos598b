@@ -21,7 +21,7 @@ cluster <- function(data, num_clusters) {
     # clusters on out of fold data
     clustering_data <- data_out_fold[, c('lat', 'lng', 'bearing')]
     clustering_data$bearing = clustering_data$bearing*bearing_multiplier;
-    clusters <- kmeans(clustering_data, num_clusters, 1000, 10)
+    clusters <- kmeans(clustering_data, num_clusters, 1000, 3)
 
     for (i in 1:length(in_fold_index)) {
       # find cluster that this in fold point would have been assigned to
@@ -56,7 +56,7 @@ data <- read.table(input_file)
 # Bearing will be reduced by this much for kmeans
 bearing_multiplier = 1/18000;
 
-num_clusters_iter <- seq(1:(2*nrow(data)/3))
+num_clusters_iter <- seq(from=10,to=(2*nrow(data)/3),by=10)
 
 min_dist <- 100000000
 min_num_clusters <- 0
