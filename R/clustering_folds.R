@@ -6,7 +6,7 @@ cluster <- function(data, num_clusters) {
 
   count <- 0
   count_cluster <- 0
-  predictive_dist <- 0
+  predictive_dist <- c()
   
   folds <- sample(1:num_folds, nrow(data), replace=TRUE)
   for (k in 1:num_folds) {
@@ -37,12 +37,16 @@ cluster <- function(data, num_clusters) {
     	mean_time_to_wifi <- mean(data_in_cluster$time_to_wifi)
     	
     	# difference between the mean value and the actual value
-    	predictive_dist <- predictive_dist + abs(data$time_to_wifi[in_fold_index[i]] - mean_time_to_wifi)
     	count <- count +  1
+    	predictive_dist[count] <- abs(data$time_to_wifi[in_fold_index[i]] - mean_time_to_wifi)
       }
     }
   }
-  return(predictive_dist/count)
+  #remove outliers
+  predictive_dist <- predictive_dist[which(predictive_dist <= median(predictive_dist) + 1.5*IQR(predictive_dist))]
+  
+  # return mean L1
+  mean(predictive_dist)
 }
 
 require(MASS)
