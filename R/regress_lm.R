@@ -1,20 +1,16 @@
 # regression with simple lm
 # 5-fold cross validation with folds calculated globally
 
-regress_lm <- function(data) {
+regress_lm <- function(data, lat_div, lng_div, bearing_div) {
   # constants
-    lat_max <- 40.3470
-    lat_min <- 40.3460
-    lng_min <- -74.6600
-    lng_max <- -74.6570
+    lat_max <- 40.3530;
+    lat_min <- 40.3390;
+    lng_min <- -74.6660;
+    lng_max <- -74.6440;
   lat_range <- lat_max - lat_min
   lng_range <- lng_max - lng_min
 
   # parameters
-  bearing_div <- 4;
-  lat_div <- 4;
-  lng_div <- 4;
-  lambda <- seq(1,4, 0.4)
   num_folds <- 5
 
   # prediction distance
@@ -81,11 +77,41 @@ regress_lm <- function(data) {
     }
   }
   pred_dist = pred_dist/count
-  print(pred_dist)
-  print(count)
+  return(pred_dist)
 }
 
 require(MASS)
 input_file <- "prepared_data.txt";
 data <- read.table(input_file)
-regress_lm(data)
+
+bearing_div_iter <- seq(1,10, 5);
+lat_div_iter <- seq(1, 20, 5);
+lng_div_iter <- seq(1, 20, 5);
+
+min_dist <- 100000000
+min_bearing_div <- 0
+min_lat_div <- 0
+min_lng_div <- 0
+
+for (bearing_div in bearing_div_iter) {
+  for (lat_div in lat_div_iter) {
+    for (lng_div in lng_div_iter) {
+      pred_dist <- regress_lm(data, lat_div, lng_div, bearing_div) 
+      print(bearing_div)
+      print(lat_div)
+      print(lng_div)
+      print(pred_dist)
+      if (pred_dist < min_dist) {
+	min_dist <- pred_dist
+	min_bearing_div <- bearing_div
+	min_lat_div <- lat_div
+	min_lng_div <- lng_div
+      }
+    }
+  }
+}
+print('Best');
+print(min_lat_div);
+print(min_lng_div);
+print(min_bearing_div);
+print(min_dist)

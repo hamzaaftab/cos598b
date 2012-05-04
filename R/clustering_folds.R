@@ -1,10 +1,8 @@
-# regression with simple lm
-# 5-fold cross validation with folds calculated globally
+# clustering
 
-cluster <- function(data) {
+cluster <- function(data, num_clusters) {
   # parameters
-  num_clusters <- 100
-  num_folds <- 10
+  num_folds <- 5
 
   count <- 0
   count_cluster <- 0
@@ -43,11 +41,26 @@ cluster <- function(data) {
       }
     }
   }
-  print(predictive_dist/count)
-  print(count)
+  return(predictive_dist/count)
 }
 
 require(MASS)
 input_file <- "prepared_data.txt";
 data <- read.table(input_file)
-cluster(data)
+
+num_clusters_iter <- seq(1:(2*nrow(data)/3))
+
+min_dist <- 100000000
+min_num_clusters <- 0
+for (num_clusters in num_clusters_iter) {
+  pred_dist <- cluster(data, num_clusters)
+  print(num_clusters)
+  print(pred_dist)
+  if (pred_dist < min_dist) {
+    min_dist <- pred_dist
+    min_num_clusters <- num_clusters
+  }
+}
+print('Best');
+print(min_num_clusters);
+print(min_dist);

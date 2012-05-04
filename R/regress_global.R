@@ -78,10 +78,10 @@ L1 <- function(data, lat_div_size, lng_div_size, bearing_div_size) {
 library('MASS')
 
 # Constants (make sure they stay in sync across all files)
-lat_max <- 40.3530;
-lat_min <- 40.3390;
-lng_min <- -74.6660;
-lng_max <- -74.6440;
+    lat_max <- 40.3510
+    lat_min <- 40.3490
+    lng_min <- -74.6540
+    lng_max <- -74.6520
 
 # Read data
 data <- read.table("prepared_data.txt");

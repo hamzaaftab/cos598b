@@ -20,7 +20,20 @@ cluster <- function(data) {
   clustering_data <- data[, c('lat', 'lng', 'bearing')]
   clusters <- kmeans(clustering_data, num_clusters)
   
+  mean_time_to_wifi <- matrix(NA, num_clusters, 1)
+
+  for (i in 1:num_clusters) {
+    # among indices in that cluster
+    indices_in_cluster <- which(clusters$cluster == i)
+    # find mean time to wifi in that cluster
+    if (length(indices_in_cluster) > 0) {
+      data_in_cluster <- data[indices_in_cluster,]
+      mean_time_to_wifi[i] <- mean(data_in_cluster$time_to_wifi)
+    }
+  }
+
   print(clusters$centers)
+  print(mean_time_to_wifi)
 }
 
 require(MASS)

@@ -3,17 +3,18 @@
 
 regress_lm2 <- function(data) {
   # constants
-  lat_max <- 40.3530;
-  lat_min <- 40.3390;
+
+    lat_max <- 40.3510
+    lat_min <- 40.3490
+    lng_min <- -74.6540
+    lng_max <- -74.6520
   lat_range <- lat_max - lat_min
-  lng_min <- -74.6660;
-  lng_max <- -74.6440;
   lng_range <- lng_max - lng_min
 
   # parameters
-  bearing_div <- 10;
-  lat_div <- 30;
-  lng_div <- 30;
+  bearing_div <- 4;
+  lat_div <- 4;
+  lng_div <- 4;
   num_folds <- 5;
 
   # prediction distance

@@ -9,10 +9,10 @@ prepare_data <- function() {
     accuracy_threshold <- 25;
 
     # Dod bounds
-    lat_max <- 40.3470
-    lat_min <- 40.3460
-    lng_min <- -74.6600
-    lng_max <- -74.6570
+    #lat_max <- 40.3470
+    #lat_min <- 40.3460
+    #lng_min <- -74.6600
+    #lng_max <- -74.6570
 
     # CS bldg bounds
     #lat_max <- 40.3510
@@ -21,10 +21,17 @@ prepare_data <- function() {
     #lng_max <- -74.6520
     
     # Princeton bounds
-    #lat_max <- 40.3530;
-    #lat_min <- 40.3390;
-    #lng_min <- -74.6660;
-    #lng_max <- -74.6440;
+    at_max <- 40.3530;
+    lat_min <- 40.3390;
+    lng_min <- -74.6660;
+    lng_max <- -74.6440;
+
+    # Friend center
+    #lat_max <- 40.3510
+    #lat_min <- 40.3490
+    #lng_min <- -74.6540
+    #lng_max <- -74.6520
+
     markov_length = 10*60;
 
     # Read data
