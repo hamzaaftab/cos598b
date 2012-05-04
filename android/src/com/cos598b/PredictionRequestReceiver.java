@@ -95,6 +95,9 @@ public class PredictionRequestReceiver extends BroadcastReceiver {
         // if prediction is too long, then callback
         if (time_to_wifi > tolerance - timer) {
             callback("wifi will not be available soon");
+        } else {
+            // display prediction
+            Utils.toast(mContext, "Wifi unavailable, but expected in " + Integer.toString(time_to_wifi-timer) + " seconds");
         }
     }
 
