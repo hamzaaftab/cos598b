@@ -29,6 +29,9 @@ public class Consts {
     // We will scan for wifi this often (seconds)
     public static final int WIFI_SCAN_FREQUENCY = 10;
 
+    // Minimum good wifi RSSI to be considered connected
+    public static final int MIN_WIFI_RSSI = -70;
+
     // ------------------------ HTTP Constants --------------------------------- //
 
     // Number of data points to send in one http request

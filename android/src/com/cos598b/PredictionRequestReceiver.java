@@ -104,7 +104,7 @@ public class PredictionRequestReceiver extends BroadcastReceiver {
         wm.startScan();
 
         // if wifi is connected, then callback
-        if (isConnectedWiFi()) {
+        if (isConnectedWiFi() && wm.getConnectionInfo().getRssi() > Consts.MIN_WIFI_RSSI) {
             callback("wifi found");
         } else {
             // increment timer
