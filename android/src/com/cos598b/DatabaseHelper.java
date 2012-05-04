@@ -87,6 +87,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return count;
     }
 
+    // Predict time_to_wifi (in seconds)
+    private int predict(double lat, double lng, double bearing, double speed, double accuracy, double timestamp) {
+        return 120;
+    }
+
     // Retrieve a few data points and remove them from the database
     // Returns a comma separated string of fields
     private Map<String, String> popFew() {
@@ -153,5 +158,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public synchronized static int getNumRows(Context context) {
         DatabaseHelper db = new DatabaseHelper(context);
         return db.getNumRows();
+    }
+
+    public synchronized static int predict(Context context, double lat, double lng, double bearing, double speed, double accuracy, double timestamp) {
+        DatabaseHelper db = new DatabaseHelper(context);
+        return db.predict(lat, lng, bearing, speed, accuracy, timestamp);
     }
 }

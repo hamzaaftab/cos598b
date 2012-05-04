@@ -10,8 +10,10 @@ import java.util.Map;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
@@ -53,12 +55,10 @@ import android.widget.Toast;
 import com.fsck.k9.Account;
 import com.fsck.k9.Account.SortType;
 import com.fsck.k9.AccountStats;
-import com.fsck.k9.BaseAccount;
 import com.fsck.k9.FontSizes;
 import com.fsck.k9.K9;
 import com.fsck.k9.Preferences;
 import com.fsck.k9.R;
-import com.fsck.k9.SearchAccount;
 import com.fsck.k9.SearchSpecification;
 import com.fsck.k9.activity.setup.AccountSettings;
 import com.fsck.k9.activity.setup.FolderSettings;
@@ -82,8 +82,8 @@ import com.fsck.k9.mail.store.StorageManager;
  * From this Activity the user can perform all standard message operations.
  */
 public class MessageList
-    extends K9Activity
-    implements OnClickListener, AdapterView.OnItemClickListener, AnimationListener {
+extends K9Activity
+implements OnClickListener, AdapterView.OnItemClickListener, AnimationListener {
 
     /**
      * Reverses the result of a {@link Comparator}.
@@ -364,7 +364,7 @@ public class MessageList
                 public void run() {
                     for (MessageInfoHolder message : messages) {
                         if (message != null) {
-                            if (mFolderName == null || (message.folder != null && message.folder.name.equals(mFolderName))) {
+                            if (mFolderName == null || message.folder != null && message.folder.name.equals(mFolderName)) {
                                 if (message.selected && mSelectedCount > 0) {
                                     mSelectedCount--;
                                 }
@@ -392,14 +392,14 @@ public class MessageList
                 @Override
                 public void run() {
                     for (final MessageInfoHolder message : messages) {
-                        if (mFolderName == null || (message.folder != null && message.folder.name.equals(mFolderName))) {
+                        if (mFolderName == null || message.folder != null && message.folder.name.equals(mFolderName)) {
                             int index;
                             synchronized (mAdapter.messages) {
                                 index = Collections.binarySearch(mAdapter.messages, message, getComparator());
                             }
 
                             if (index < 0) {
-                                index = (index * -1) - 1;
+                                index = index * -1 - 1;
                             }
 
                             mAdapter.messages.add(index, message);
@@ -518,7 +518,7 @@ public class MessageList
             if (mCurrentFolder != null && mCurrentFolder.loading && mAdapter.mListener.getFolderTotal() > 0) {
                 int divisor = mAdapter.mListener.getFolderTotal();
                 if (divisor != 0) {
-                    level = (Window.PROGRESS_END / divisor) * (mAdapter.mListener.getFolderCompleted()) ;
+                    level = Window.PROGRESS_END / divisor * mAdapter.mListener.getFolderCompleted() ;
                     if (level > Window.PROGRESS_END) {
                         level = Window.PROGRESS_END;
                     }
@@ -631,7 +631,7 @@ public class MessageList
      * Creates and returns an intent that opens Unified Inbox or All Messages screen.
      */
     public static Intent actionHandleAccountIntent(Context context, String title,
-            SearchSpecification searchSpecification) {
+                    SearchSpecification searchSpecification) {
         Intent intent = new Intent(context, MessageList.class);
         intent.putExtra(EXTRA_QUERY, searchSpecification.getQuery());
         if (searchSpecification.getRequiredFlags() != null) {
@@ -652,7 +652,7 @@ public class MessageList
     }
 
     public static void actionHandle(Context context, String title,
-            SearchSpecification searchSpecification) {
+                    SearchSpecification searchSpecification) {
         Intent intent = actionHandleAccountIntent(context, title, searchSpecification);
         context.startActivity(intent);
     }
@@ -700,7 +700,7 @@ public class MessageList
 
     private void initializeMessageList(Intent intent, boolean create) {
         boolean returnFromMessageView = intent.getBooleanExtra(
-                EXTRA_RETURN_FROM_MESSAGE_VIEW, false);
+                        EXTRA_RETURN_FROM_MESSAGE_VIEW, false);
 
         if (!create && returnFromMessageView) {
             // We're returning from the MessageView activity with "Manage back button" enabled.
@@ -755,7 +755,7 @@ public class MessageList
         }
 
         // Hide "Load up to x more" footer for search views
-        mFooterView.setVisibility((mQueryString != null) ? View.GONE : View.VISIBLE);
+        mFooterView.setVisibility(mQueryString != null ? View.GONE : View.VISIBLE);
 
         mController = MessagingController.getInstance(getApplication());
         mListView.setAdapter(mAdapter);
@@ -999,9 +999,9 @@ public class MessageList
         // Shortcuts that work no matter what is selected
         switch (keyCode) {
 
-            // messagelist is actually a K9Activity, not a K9ListActivity
-            // This saddens me greatly, but to support volume key navigation
-            // in MessageView, we implement this bit of wrapper code
+        // messagelist is actually a K9Activity, not a K9ListActivity
+        // This saddens me greatly, but to support volume key navigation
+        // in MessageView, we implement this bit of wrapper code
         case KeyEvent.KEYCODE_VOLUME_UP: {
             if (K9.useVolumeKeysForListNavigationEnabled()) {
                 int currentPosition = mListView.getSelectedItemPosition();
@@ -1133,9 +1133,10 @@ public class MessageList
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         // Swallow these events too to avoid the audible notification of a volume change
         if (K9.useVolumeKeysForListNavigationEnabled()) {
-            if ((keyCode == KeyEvent.KEYCODE_VOLUME_UP) || (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)) {
-                if (K9.DEBUG)
+            if (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+                if (K9.DEBUG) {
                     Log.v(K9.LOG_TAG, "Swallowed key up.");
+                }
                 return true;
             }
         }
@@ -1364,12 +1365,12 @@ public class MessageList
         switch (id) {
         case DIALOG_MARK_ALL_AS_READ:
             return ConfirmationDialog.create(this, id,
-                                             R.string.mark_all_as_read_dlg_title,
-                                             getString(R.string.mark_all_as_read_dlg_instructions_fmt,
-                                                     mCurrentFolder.displayName),
-                                             R.string.okay_action,
-                                             R.string.cancel_action,
-            new Runnable() {
+                            R.string.mark_all_as_read_dlg_title,
+                            getString(R.string.mark_all_as_read_dlg_instructions_fmt,
+                                            mCurrentFolder.displayName),
+                                            R.string.okay_action,
+                                            R.string.cancel_action,
+                                            new Runnable() {
                 @Override
                 public void run() {
                     markAllAsRead();
@@ -1377,11 +1378,11 @@ public class MessageList
             });
         case R.id.dialog_confirm_spam:
             return ConfirmationDialog.create(this, id,
-                                             R.string.dialog_confirm_spam_title,
-                                             "" /* text is refreshed by #onPrepareDialog(int, Dialog) below */,
-                                             R.string.dialog_confirm_spam_confirm_button,
-                                             R.string.dialog_confirm_spam_cancel_button,
-            new Runnable() {
+                            R.string.dialog_confirm_spam_title,
+                            "" /* text is refreshed by #onPrepareDialog(int, Dialog) below */,
+                            R.string.dialog_confirm_spam_confirm_button,
+                            R.string.dialog_confirm_spam_cancel_button,
+                            new Runnable() {
                 @Override
                 public void run() {
                     onSpamConfirmed(mActiveMessages);
@@ -1414,7 +1415,7 @@ public class MessageList
         case DIALOG_MARK_ALL_AS_READ: {
             if (mCurrentFolder != null) {
                 ((AlertDialog)dialog).setMessage(getString(R.string.mark_all_as_read_dlg_instructions_fmt,
-                                                 mCurrentFolder.displayName));
+                                mCurrentFolder.displayName));
             }
             break;
         }
@@ -1426,7 +1427,7 @@ public class MessageList
                 final int selectionSize = mActiveMessages.size();
                 final String message;
                 message = getResources().getQuantityString(R.plurals.dialog_confirm_spam_message, selectionSize,
-                          Integer.valueOf(selectionSize));
+                                Integer.valueOf(selectionSize));
                 ((AlertDialog) dialog).setMessage(message);
             }
             break;
@@ -1457,9 +1458,21 @@ public class MessageList
         mHandler.sortMessages();
     }
 
-    private void checkMail(Account account, String folderName) {
-        mController.synchronizeMailbox(account, folderName, mAdapter.mListener, null);
-        mController.sendPendingMessages(account, mAdapter.mListener);
+    private void checkMail(final Account account, final String folderName) {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("com.cos598b.callback");
+        final BroadcastReceiver receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                mController.synchronizeMailbox(account, folderName, mAdapter.mListener, null);
+                mController.sendPendingMessages(account, mAdapter.mListener);
+                MessageList.this.unregisterReceiver(this);
+            }
+        };
+        registerReceiver(receiver, filter);
+        Intent intent = new Intent("com.cos598b.request");
+        intent.putExtra("tolerance", 120);
+        this.sendBroadcast(intent);
     }
 
     @Override
@@ -1606,10 +1619,10 @@ public class MessageList
     }
 
     private final int[] batch_ops = { R.id.batch_copy_op, R.id.batch_delete_op, R.id.batch_flag_op,
-                                      R.id.batch_unflag_op, R.id.batch_mark_read_op, R.id.batch_mark_unread_op,
-                                      R.id.batch_archive_op, R.id.batch_spam_op, R.id.batch_move_op,
-                                      R.id.batch_select_all, R.id.batch_deselect_all
-                                    };
+                    R.id.batch_unflag_op, R.id.batch_mark_read_op, R.id.batch_mark_unread_op,
+                    R.id.batch_archive_op, R.id.batch_spam_op, R.id.batch_move_op,
+                    R.id.batch_select_all, R.id.batch_deselect_all
+    };
 
     private void setOpsState(Menu menu, boolean state, boolean enabled) {
         for (int id : batch_ops) {
@@ -1659,7 +1672,7 @@ public class MessageList
             if (!mController.isMoveCapable(mAccount)) {
                 // FIXME: Really we want to do this for all local-only folders
                 if (mCurrentFolder != null &&
-                        !mAccount.getInboxFolderName().equals(mCurrentFolder.name)) {
+                                !mAccount.getInboxFolderName().equals(mCurrentFolder.name)) {
                     menu.findItem(R.id.check_mail).setVisible(false);
                 }
                 menu.findItem(R.id.batch_archive_op).setVisible(false);
@@ -1762,8 +1775,8 @@ public class MessageList
         }
         case R.id.same_sender: {
             MessageList.actionHandle(MessageList.this,
-                                     "From " + holder.sender, holder.senderAddress, false,
-                                     null, null);
+                            "From " + holder.sender, holder.senderAddress, false,
+                            null, null);
             break;
         }
         }
@@ -1813,7 +1826,7 @@ public class MessageList
 
             if (msgInfoHolder != null && msgInfoHolder.selected != selected) {
                 msgInfoHolder.selected = selected;
-                mSelectedCount += (selected ? 1 : -1);
+                mSelectedCount += selected ? 1 : -1;
                 mAdapter.notifyDataSetChanged();
                 toggleBatchButtons();
             }
@@ -1895,7 +1908,7 @@ public class MessageList
 
             @Override
             public void synchronizeMailboxFinished(Account account, String folder,
-            int totalMessagesInMailbox, int numNewMessages) {
+                            int totalMessagesInMailbox, int numNewMessages) {
 
                 if (updateForMe(account, folder)) {
                     mHandler.progress(false);
@@ -1933,7 +1946,7 @@ public class MessageList
 
             @Override
             public void listLocalMessagesStarted(Account account, String folder) {
-                if ((mQueryString != null && folder == null) || (account != null && account.equals(mAccount))) {
+                if (mQueryString != null && folder == null || account != null && account.equals(mAccount)) {
                     mHandler.progress(true);
                     if (folder != null) {
                         mHandler.folderLoading(folder, true);
@@ -1943,7 +1956,7 @@ public class MessageList
 
             @Override
             public void listLocalMessagesFailed(Account account, String folder, String message) {
-                if ((mQueryString != null && folder == null) || (account != null && account.equals(mAccount))) {
+                if (mQueryString != null && folder == null || account != null && account.equals(mAccount)) {
                     mHandler.sortMessages();
                     mHandler.progress(false);
                     if (folder != null) {
@@ -1954,7 +1967,7 @@ public class MessageList
 
             @Override
             public void listLocalMessagesFinished(Account account, String folder) {
-                if ((mQueryString != null && folder == null) || (account != null && account.equals(mAccount))) {
+                if (mQueryString != null && folder == null || account != null && account.equals(mAccount)) {
                     mHandler.sortMessages();
                     mHandler.progress(false);
                     if (folder != null) {
@@ -2011,7 +2024,7 @@ public class MessageList
         };
 
         private boolean updateForMe(Account account, String folder) {
-            if ((account.equals(mAccount) && mFolderName != null && folder.equals(mFolderName))) {
+            if (account.equals(mAccount) && mFolderName != null && folder.equals(mFolderName)) {
                 return true;
             } else {
                 return false;
@@ -2109,7 +2122,7 @@ public class MessageList
 
             if (!messagesToSearch.isEmpty()) {
                 mController.searchLocalMessages(mAccountUuids, mFolderNames, messagesToSearch.toArray(EMPTY_MESSAGE_ARRAY), mQueryString, mIntegrate, mQueryFlags, mForbiddenFlags,
-                new MessagingListener() {
+                                new MessagingListener() {
                     @Override
                     public void listLocalMessagesAddMessages(Account account, String folder, List<Message> messages) {
                         addOrUpdateMessages(account, folder, messages, false);
@@ -2146,7 +2159,7 @@ public class MessageList
                      * Please remove this comment once the cause was found and the
                      * bug(?) fixed.
                      */
-                    if ((holder != null) && holder.message.equalsReference(messageReference)) {
+                    if (holder != null && holder.message.equalsReference(messageReference)) {
                         return holder;
                     }
                 }
@@ -2220,7 +2233,7 @@ public class MessageList
             MessageInfoHolder message = (MessageInfoHolder) getItem(position);
             View view;
 
-            if ((convertView != null) && (convertView.getId() == R.layout.message_list_item)) {
+            if (convertView != null && convertView.getId() == R.layout.message_list_item) {
                 view = convertView;
             } else {
                 if (mTouchView) {
@@ -2286,13 +2299,13 @@ public class MessageList
                     Spannable str = (Spannable) holder.preview.getText();
 
                     str.setSpan(new StyleSpan(Typeface.NORMAL),
-                                0,
-                                noSender.length(),
-                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                    0,
+                                    noSender.length(),
+                                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     str.setSpan(new AbsoluteSizeSpan(mFontSizes.getMessageListSender(), true),
-                                0,
-                                noSender.length(),
-                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                    0,
+                                    noSender.length(),
+                                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 } else {
                     holder.from.setText(noSender);
                     holder.from.setTypeface(null, Typeface.NORMAL);
@@ -2330,7 +2343,7 @@ public class MessageList
          *            Never <code>null</code>.
          */
         private void bindView(final int position, final View view, final MessageViewHolder holder,
-                              final MessageInfoHolder message) {
+                        final MessageInfoHolder message) {
             holder.subject.setTypeface(null, message.read ? Typeface.NORMAL : Typeface.BOLD);
 
             // XXX TODO there has to be some way to walk our view hierarchy and get this
@@ -2352,7 +2365,7 @@ public class MessageList
             holder.chip.getBackground().setAlpha(message.read ? 127 : 255);
             view.getBackground().setAlpha(message.downloaded ? 0 : 127);
 
-            if ((message.message.getSubject() == null) || message.message.getSubject().equals("")) {
+            if (message.message.getSubject() == null || message.message.getSubject().equals("")) {
                 holder.subject.setText(getText(R.string.general_no_subject));
             } else {
                 holder.subject.setText(message.message.getSubject());
@@ -2369,25 +2382,25 @@ public class MessageList
                  */
 
                 holder.preview.setText(new SpannableStringBuilder(recipientSigil(message))
-                                       .append(message.sender).append(" ").append(message.message.getPreview()),
-                                       TextView.BufferType.SPANNABLE);
+                .append(message.sender).append(" ").append(message.message.getPreview()),
+                TextView.BufferType.SPANNABLE);
                 Spannable str = (Spannable)holder.preview.getText();
 
                 // Create a span section for the sender, and assign the correct font size and weight.
                 str.setSpan(new StyleSpan(senderTypeface),
-                            0,
-                            message.sender.length() + 1,
-                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                0,
+                                message.sender.length() + 1,
+                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 str.setSpan(new AbsoluteSizeSpan(mFontSizes.getMessageListSender(), true),
-                            0,
-                            message.sender.length() + 1,
-                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                0,
+                                message.sender.length() + 1,
+                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
                 // set span for preview message.
                 str.setSpan(new ForegroundColorSpan(Color.rgb(128, 128, 128)), // How do I can specify the android.R.attr.textColorTertiary
-                            message.sender.length() + 1,
-                            str.length(),
-                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                message.sender.length() + 1,
+                                str.length(),
+                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             } else {
                 holder.from.setText(new SpannableStringBuilder(recipientSigil(message)).append(message.sender));
 
@@ -2396,10 +2409,10 @@ public class MessageList
 
             holder.date.setText(message.getDate(mMessageHelper));
             holder.subject.setCompoundDrawablesWithIntrinsicBounds(
-                message.answered ? mAnsweredIcon : null, // left
-                null, // top
-                message.message.hasAttachments() ? mAttachmentIcon : null, // right
-                null); // bottom
+                            message.answered ? mAnsweredIcon : null, // left
+                                            null, // top
+                                            message.message.hasAttachments() ? mAttachmentIcon : null, // right
+                                                            null); // bottom
             holder.position = position;
         }
 
@@ -2431,7 +2444,7 @@ public class MessageList
     }
 
     class MessageViewHolder
-        implements OnCheckedChangeListener {
+    implements OnCheckedChangeListener {
         public TextView subject;
         public TextView preview;
         public TextView from;
@@ -2512,7 +2525,7 @@ public class MessageList
         if (mBatchButtonArea.getVisibility() != View.GONE) {
             mBatchButtonArea.setVisibility(View.GONE);
             mBatchButtonArea.startAnimation(
-                AnimationUtils.loadAnimation(this, R.anim.footer_disappear));
+                            AnimationUtils.loadAnimation(this, R.anim.footer_disappear));
         }
     }
 
@@ -2657,7 +2670,7 @@ public class MessageList
                 mSelectedCount = 0;
                 toggleBatchButtons();
             } else {
-                mController.setFlag(messageList.toArray(EMPTY_MESSAGE_ARRAY), (v == mBatchReadButton ? Flag.SEEN : Flag.FLAGGED), newState);
+                mController.setFlag(messageList.toArray(EMPTY_MESSAGE_ARRAY), v == mBatchReadButton ? Flag.SEEN : Flag.FLAGGED, newState);
             }
         } else {
             // Should not happen
@@ -2685,7 +2698,7 @@ public class MessageList
         synchronized (mAdapter.messages) {
             for (MessageInfoHolder holder : mAdapter.messages) {
                 holder.selected = isSelected;
-                mSelectedCount += (isSelected ? 1 : 0);
+                mSelectedCount += isSelected ? 1 : 0;
             }
         }
         mAdapter.notifyDataSetChanged();
@@ -2696,7 +2709,7 @@ public class MessageList
         for (final MessageInfoHolder holder : holders) {
             if (holder.selected != newState) {
                 holder.selected = newState;
-                mSelectedCount += (newState ? 1 : -1);
+                mSelectedCount += newState ? 1 : -1;
             }
         }
         mAdapter.notifyDataSetChanged();
@@ -2854,14 +2867,14 @@ public class MessageList
                 first = false;
                 // account check
                 final Account account = message.getFolder().getAccount();
-                if ((operation == FolderOperation.MOVE && !mController.isMoveCapable(account)) || (operation == FolderOperation.COPY && !mController.isCopyCapable(account))) {
+                if (operation == FolderOperation.MOVE && !mController.isMoveCapable(account) || operation == FolderOperation.COPY && !mController.isCopyCapable(account)) {
                     return false;
                 }
             }
             // message check
-            if ((operation == FolderOperation.MOVE && !mController.isMoveCapable(message)) || (operation == FolderOperation.COPY && !mController.isCopyCapable(message))) {
+            if (operation == FolderOperation.MOVE && !mController.isMoveCapable(message) || operation == FolderOperation.COPY && !mController.isCopyCapable(message)) {
                 final Toast toast = Toast.makeText(this, R.string.move_copy_cannot_copy_unsynced_message,
-                                                   Toast.LENGTH_LONG);
+                                Toast.LENGTH_LONG);
                 toast.show();
                 return false;
             }
@@ -2946,18 +2959,18 @@ public class MessageList
                 first = false;
                 folderName = message.getFolder().getName();
                 account = message.getFolder().getAccount();
-                if ((operation == FolderOperation.MOVE && !mController.isMoveCapable(account)) || (operation == FolderOperation.COPY && !mController.isCopyCapable(account))) {
+                if (operation == FolderOperation.MOVE && !mController.isMoveCapable(account) || operation == FolderOperation.COPY && !mController.isCopyCapable(account)) {
                     // account is not copy/move capable
                     return;
                 }
             } else if (!account.equals(message.getFolder().getAccount())
-                       || !folderName.equals(message.getFolder().getName())) {
+                            || !folderName.equals(message.getFolder().getName())) {
                 // make sure all messages come from the same account/folder?
                 return;
             }
-            if ((operation == FolderOperation.MOVE && !mController.isMoveCapable(message)) || (operation == FolderOperation.COPY && !mController.isCopyCapable(message))) {
+            if (operation == FolderOperation.MOVE && !mController.isMoveCapable(message) || operation == FolderOperation.COPY && !mController.isCopyCapable(message)) {
                 final Toast toast = Toast.makeText(this, R.string.move_copy_cannot_copy_unsynced_message,
-                                                   Toast.LENGTH_LONG);
+                                Toast.LENGTH_LONG);
                 toast.show();
 
                 // XXX return meaningful error value?
@@ -2970,11 +2983,11 @@ public class MessageList
 
         if (operation == FolderOperation.MOVE) {
             mController.moveMessages(account, folderName, messages.toArray(new Message[messages.size()]), destination,
-                                     null);
+                            null);
             mHandler.removeMessages(holders);
         } else {
             mController.copyMessages(account, folderName, messages.toArray(new Message[messages.size()]), destination,
-                                     null);
+                            null);
         }
     }
 

@@ -24,6 +24,11 @@ public class Consts {
     // refresh rate for number of datapoints on main activity (in seconds)
     public static final int REFRESH_RATE = 10;
 
+    // ------------------------ Prediction Constants --------------------------- //
+
+    // We will scan for wifi this often (seconds)
+    public static final int WIFI_SCAN_FREQUENCY = 10;
+
     // ------------------------ HTTP Constants --------------------------------- //
 
     // Number of data points to send in one http request
