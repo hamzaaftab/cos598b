@@ -89,7 +89,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Predict time_to_wifi (in seconds)
     private int predict(double lat, double lng, double bearing, double speed, double accuracy, double timestamp) {
-        return 120;
+        // TODO: Actually implement this
+        return 100;
     }
 
     // Retrieve a few data points and remove them from the database

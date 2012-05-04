@@ -55,9 +55,6 @@ public class PredictionRequestReceiver extends BroadcastReceiver {
             callback_intent.putExtra("reason", reason);
             mContext.sendBroadcast(callback_intent);
             callbackPending = false;
-
-            // Just for testing
-            Utils.toast_test(mContext, reason);
         }
     }
 
