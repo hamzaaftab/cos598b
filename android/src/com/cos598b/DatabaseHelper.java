@@ -15,15 +15,15 @@ import android.database.sqlite.SQLiteStatement;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Database Version
-    private static final int DATABASE_VERSION = 2;       // after adding WIFI_POWER_LEVELS
+    private static final int DATABASE_VERSION = 3;       // after adding PREDICTION MODEL
 
     // Database Name
     private static final String DATABASE_NAME = "droidtn";
 
-    // Contacts table name
+    // Points table name
     private static final String TABLE_POINTS = "points";
 
-    // Contacts Table Columns names
+    // Points Table Columns names
     public static final String KEY_ID = "id";
     public static final String KEY_LAT = "lat";
     public static final String KEY_LNG = "lng";
@@ -32,6 +32,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String KEY_WIFI_POWER_LEVELS = "wifi_power_levels";
     public static final String KEY_SPEED = "speed";
     public static final String KEY_ACCURACY = "accuracy";
+
+    // Prediction Model table name
+    private static final String TABLE_PREDICTION = "prediction_model";
+
+    // Extra columns for Prediction Model
+    public static final String KEY_TIME_TO_WIFI = "time_to_wifi";
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -46,15 +52,28 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         + KEY_WIFI_POWER_LEVELS + " STRING,"
                         + KEY_SPEED + " REAL," + KEY_ACCURACY + " REAL" + ")";
         db.execSQL(CREATE_POINTS_TABLE);
+        String CREATE_PREDICTION_TABLE = "CREATE TABLE " + TABLE_PREDICTION + "("
+                        + KEY_ID + " INTEGER PRIMARY KEY," + KEY_LAT + " REAL,"
+                        + KEY_LNG + " REAL," + KEY_BEARING + " REAL,"
+                        + KEY_TIME_TO_WIFI + " INTEGER" + ")";
+        db.execSQL(CREATE_PREDICTION_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // Drop older table if existed
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_POINTS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PREDICTION);
 
         // Create tables again
         onCreate(db);
+    }
+
+    // delete all predictions
+    private void deletePredictions() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DELETE FROM " + TABLE_PREDICTION);
+        db.close(); // Closing database connection
     }
 
     // Adding new data point
@@ -85,6 +104,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         int count = (int) statement.simpleQueryForLong();
         db.close(); // Closing database connection
         return count;
+    }
+
+    // Add a prediction model cluster
+    private void addPrediction(double lat, double lng, double bearing, int time_to_wifi) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(KEY_LAT, lat);
+        values.put(KEY_LNG, lng);
+        values.put(KEY_BEARING, bearing);
+        values.put(KEY_TIME_TO_WIFI, time_to_wifi);
+
+        // Inserting Row
+        db.insert(TABLE_PREDICTION, null, values);
+        db.close(); // Closing database connection
     }
 
     // Predict time_to_wifi (in seconds)
@@ -149,6 +183,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public synchronized static void addPoint(Context context, DataPoint point) {
         DatabaseHelper db = new DatabaseHelper(context);
         db.addPoint(point);
+    }
+
+    public synchronized static void addPrediction(Context context, double lat, double lng, double bearing, int time_to_wifi) {
+        DatabaseHelper db = new DatabaseHelper(context);
+        db.addPrediction(lat,lng,bearing,time_to_wifi);
+    }
+
+    public synchronized static void deletePredictions(Context context) {
+        DatabaseHelper db = new DatabaseHelper(context);
+        db.deletePredictions();
     }
 
     public synchronized static Map<String, String> popFew(Context context) {

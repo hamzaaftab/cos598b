@@ -13,7 +13,10 @@
 
 package com.cos598b;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +26,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
@@ -170,7 +174,37 @@ public class Home extends Activity {
 
     // fetch predictions from back-end
     private void getPredictions() {
-
+        HttpClient httpclient = new DefaultHttpClient();
+        HttpGet httpget = new HttpGet(Consts.PREDICTION_MODEL_URL);
+        // make attempts
+        int attempt = 0;
+        while (attempt < Consts.HTTP_MAX_ATTEMPTS) {
+            try {
+                HttpResponse response = httpclient.execute(httpget);
+                if (response.getStatusLine().getStatusCode() == 200) {
+                    InputStream instream = response.getEntity().getContent();
+                    BufferedReader br = new BufferedReader(new InputStreamReader(instream, "UTF-8"));
+                    String line;
+                    DatabaseHelper.deletePredictions(this);
+                    int count = 0;
+                    while ((line = br.readLine()) != null) {
+                        String[] parameters = line.split(" ");
+                        double lat = Double.parseDouble(parameters[0]);
+                        double lng = Double.parseDouble(parameters[1]);
+                        double bearing = Double.parseDouble(parameters[2]);
+                        int time_to_wifi = (int) Double.parseDouble(parameters[3]);
+                        DatabaseHelper.addPrediction(this, lat, lng, bearing, time_to_wifi);
+                    }
+                    return;
+                } else {
+                    attempt = attempt + 1;
+                }
+            } catch (ClientProtocolException e) {
+                attempt = attempt + 1;
+            } catch (IOException e) {
+                attempt = attempt + 1;
+            }
+        }
     }
 
     @Override
@@ -193,6 +227,7 @@ public class Home extends Activity {
             public void onClick(View arg0) {
                 if (isConnectedWiFi() || isConnectedMobile()) {
                     getPredictions();
+                    Utils.toast(Home.this, "Prediction Model Updated");
                 } else {
                     Utils.toast(Home.this, "DroiDTN: Internet Connection is unavailable. Please try again later.");
                 }

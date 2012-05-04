@@ -40,6 +40,9 @@ public class Consts {
     // URL for sending data to backend
     public static final String SEND_POINTS_URL = "http://cos598b.appspot.com/add_data";
 
+    // Prediction Model
+    public static final String PREDICTION_MODEL_URL = "https://raw.github.com/hamzaaftab/cos598b/master/R/kmeans_model.txt";
+
     // number of tries to make for an http request before giving up
     public static final int HTTP_MAX_ATTEMPTS = 3;
 
