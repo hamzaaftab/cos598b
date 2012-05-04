@@ -46,7 +46,9 @@ public class PredictionRequestReceiver extends BroadcastReceiver {
         scanHandler.post(scanRunnable);
 
         // scan for location
-        doLocationScan();
+        if (callbackPending) {
+            doLocationScan();
+        }
     }
 
     private void callback(String reason) {
@@ -97,7 +99,9 @@ public class PredictionRequestReceiver extends BroadcastReceiver {
             callback("wifi will not be available soon");
         } else {
             // display prediction
-            Utils.toast(mContext, "Wifi unavailable, but expected in " + Integer.toString(time_to_wifi-timer) + " seconds");
+            if (callbackPending) {
+                Utils.toast(mContext, "Wifi unavailable, but expected in " + Integer.toString(time_to_wifi-timer) + " seconds");
+            }
         }
     }
 
