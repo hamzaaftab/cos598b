@@ -35,11 +35,16 @@ cluster <- function(data) {
     }
   }
 
-  print(clusters$centers)
-  print(mean_time_to_wifi)
+  output<-data.frame(clusters$centers, mean_time_to_wifi)
+  
+  #Unnormalize bearing
+  output$bearing <- output$bearing/bearing_multiplier
+  
+  output
 }
 
 require(MASS)
 input_file <- "prepared_data.txt";
 data <- read.table(input_file)
-cluster(data)
+model <- cluster(data)
+write.table(model,"kmeans_model.txt", row.names=FALSE,col.names=FALSE)
