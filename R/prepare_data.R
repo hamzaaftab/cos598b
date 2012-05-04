@@ -21,7 +21,7 @@ prepare_data <- function() {
     #lng_max <- -74.6520
     
     # Princeton bounds
-    at_max <- 40.3530;
+    lat_max <- 40.3530;
     lat_min <- 40.3390;
     lng_min <- -74.6660;
     lng_max <- -74.6440;
