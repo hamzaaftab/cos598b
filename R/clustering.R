@@ -21,7 +21,7 @@ cluster <- function(data) {
 
   clustering_data <- data[, c('lat', 'lng', 'bearing')]
   clustering_data$bearing = bearing_multiplier * clustering_data$bearing;
-  clusters <- kmeans(clustering_data, num_clusters)
+  clusters <- kmeans(clustering_data, num_clusters, 10000, 100)
   
   mean_time_to_wifi <- matrix(NA, num_clusters, 1)
 
