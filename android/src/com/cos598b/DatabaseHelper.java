@@ -107,17 +107,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // Add a prediction model cluster
-    private void addPrediction(double lat, double lng, double bearing, int time_to_wifi) {
+    private void addPredictions(List<Double> lat, List<Double> lng, List<Double> bearing, List<Integer> time_to_wifi) {
         SQLiteDatabase db = this.getWritableDatabase();
 
-        ContentValues values = new ContentValues();
-        values.put(KEY_LAT, lat);
-        values.put(KEY_LNG, lng);
-        values.put(KEY_BEARING, bearing);
-        values.put(KEY_TIME_TO_WIFI, time_to_wifi);
+        db.beginTransaction();
+        for (int i = 0; i < time_to_wifi.size(); i++) {
+            ContentValues values = new ContentValues();
+            values.put(KEY_LAT, lat.get(i));
+            values.put(KEY_LNG, lng.get(i));
+            values.put(KEY_BEARING, bearing.get(i));
+            values.put(KEY_TIME_TO_WIFI, time_to_wifi.get(i));
 
-        // Inserting Row
-        db.insert(TABLE_PREDICTION, null, values);
+            // Inserting Row
+            db.insert(TABLE_PREDICTION, null, values);
+        }
+        db.setTransactionSuccessful();
+        db.endTransaction();
         db.close(); // Closing database connection
     }
 
@@ -214,14 +219,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.addPoint(point);
     }
 
-    public synchronized static void addPrediction(Context context, double lat, double lng, double bearing, int time_to_wifi) {
-        DatabaseHelper db = new DatabaseHelper(context);
-        db.addPrediction(lat,lng,bearing,time_to_wifi);
-    }
-
-    public synchronized static void deletePredictions(Context context) {
+    public synchronized static void addPredictions(Context context, List<Double> lat, List<Double> lng, List<Double> bearing, List<Integer> time_to_wifi) {
         DatabaseHelper db = new DatabaseHelper(context);
         db.deletePredictions();
+        db.addPredictions(lat,lng,bearing,time_to_wifi);
     }
 
     public synchronized static Map<String, String> popFew(Context context) {

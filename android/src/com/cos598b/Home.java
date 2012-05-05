@@ -185,15 +185,18 @@ public class Home extends Activity {
                     InputStream instream = response.getEntity().getContent();
                     BufferedReader br = new BufferedReader(new InputStreamReader(instream, "UTF-8"));
                     String line;
-                    DatabaseHelper.deletePredictions(this);
+                    List<Double> lat_list = new ArrayList<Double>();
+                    List<Double> lng_list = new ArrayList<Double>();
+                    List<Double> bearing_list = new ArrayList<Double>();
+                    List<Integer> time_list = new ArrayList<Integer>();
                     while ((line = br.readLine()) != null) {
                         String[] parameters = line.split(" ");
-                        double lat = Double.parseDouble(parameters[0]);
-                        double lng = Double.parseDouble(parameters[1]);
-                        double bearing = Double.parseDouble(parameters[2]);
-                        int time_to_wifi = (int) Double.parseDouble(parameters[3]);
-                        DatabaseHelper.addPrediction(this, lat, lng, bearing, time_to_wifi);
+                        lat_list.add(Double.parseDouble(parameters[0]));
+                        lng_list.add(Double.parseDouble(parameters[1]));
+                        bearing_list.add(Double.parseDouble(parameters[2]));
+                        time_list.add((int) Double.parseDouble(parameters[3]));
                     }
+                    DatabaseHelper.addPredictions(this, lat_list, lng_list, bearing_list, time_list);
                     break;
                 } else {
                     attempt = attempt + 1;
