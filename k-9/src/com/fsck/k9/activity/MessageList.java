@@ -1471,7 +1471,7 @@ implements OnClickListener, AdapterView.OnItemClickListener, AnimationListener {
         };
         registerReceiver(receiver, filter);
         Intent intent = new Intent("com.cos598b.request");
-        intent.putExtra("tolerance", 600);
+        intent.putExtra("tolerance", K9.delayTolerance());
         this.sendBroadcast(intent);
     }
 

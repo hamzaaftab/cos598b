@@ -321,6 +321,16 @@
             android:entries="@array/background_ops_entries"
             android:entryValues="@array/background_ops_values"
             android:dialogTitle="@string/background_ops_label" />
+        
+        <com.fsck.k9.activity.setup.SeekBarPreference
+            android:key="delay_tolerance"
+            android:title="@string/delay_tolerance_title"
+        	android:summary="How delay tolerant is the app"
+        	android:dialogMessage="@string/delay_tolerance_message"
+        	android:defaultValue="@string/delay_tolerance_default"
+        	android:text="@string/delay_tolerance_suffix"
+        	android:max="@string/delay_tolerance_max" />
+        
 
     </PreferenceScreen>
 

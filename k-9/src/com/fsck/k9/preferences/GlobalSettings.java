@@ -219,6 +219,9 @@ public class GlobalSettings {
         s.put("batchButtonsUnselect", Settings.versions(
         		new V(8, new BooleanSetting(true))
         	));
+        s.put("delayTolerance", Settings.versions(
+        		new V(10, new IntegerRangeSetting(0, 600, 120))
+        	));
 
         SETTINGS = Collections.unmodifiableMap(s);
 

@@ -14,6 +14,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
+import android.preference.DialogPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
@@ -31,7 +32,6 @@ import com.fsck.k9.helper.FileBrowserHelper;
 import com.fsck.k9.helper.FileBrowserHelper.FileBrowserFailOverCallback;
 import com.fsck.k9.preferences.CheckBoxListPreference;
 import com.fsck.k9.preferences.TimePickerPreference;
-
 import com.fsck.k9.service.MailService;
 
 
@@ -81,6 +81,9 @@ public class Prefs extends K9PreferenceActivity {
     private static final String PREFERENCE_BATCH_BUTTONS_MOVE = "batch_buttons_move";
     private static final String PREFERENCE_BATCH_BUTTONS_FLAG = "batch_buttons_flag";
     private static final String PREFERENCE_BATCH_BUTTONS_UNSELECT = "batch_buttons_unselect";
+    
+    // SHRESHTH
+    private static final String PREFERENCE_DELAY_TOLERANCE = "delay_tolerance";
 
     private static final String PREFERENCE_MESSAGEVIEW_MOBILE_LAYOUT = "messageview_mobile_layout";
     private static final String PREFERENCE_BACKGROUND_OPS = "background_ops";
@@ -134,6 +137,9 @@ public class Prefs extends K9PreferenceActivity {
     private CheckBoxPreference mBatchButtonsFlag;
     private CheckBoxPreference mBatchButtonsUnselect;
 
+    // SHRESHTH
+    private SeekBarPreference mDelayTolerance;
+    
     public static void actionPrefs(Context context) {
         Intent i = new Intent(context, Prefs.class);
         context.startActivity(i);
@@ -367,6 +373,10 @@ public class Prefs extends K9PreferenceActivity {
         mBatchButtonsMove.setChecked(K9.batchButtonsMove());
         mBatchButtonsFlag.setChecked(K9.batchButtonsFlag());
         mBatchButtonsUnselect.setChecked(K9.batchButtonsUnselect());
+        
+        // SHRESHTH
+        mDelayTolerance = (com.fsck.k9.activity.setup.SeekBarPreference)findPreference(PREFERENCE_DELAY_TOLERANCE);
+        mDelayTolerance.setProgress(K9.delayTolerance());
 
         // If we don't have any accounts with an archive folder, then don't enable the preference.
         boolean hasArchiveFolder = false;
@@ -425,6 +435,8 @@ public class Prefs extends K9PreferenceActivity {
         K9.setBatchButtonsFlag(mBatchButtonsFlag.isChecked());
         K9.setBatchButtonsUnselect(mBatchButtonsUnselect.isChecked());
 
+        K9.setDelayTolerance(mDelayTolerance.getProgress());
+        
         K9.setZoomControlsEnabled(mZoomControlsEnabled.isChecked());
         K9.setAttachmentDefaultPath(mAttachmentPathPreference.getSummary().toString());
         boolean needsRefresh = K9.setBackgroundOps(mBackgroundOps.getValue());

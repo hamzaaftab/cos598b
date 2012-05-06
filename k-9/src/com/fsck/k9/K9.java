@@ -193,6 +193,9 @@ public class K9 extends Application {
     private static boolean mBatchButtonsFlag = true;
     private static boolean mBatchButtonsUnselect = true;
     
+    // SHRESHTH
+    private static int mDelayTolerance = 120;
+    
     private static boolean useGalleryBugWorkaround = false;
     private static boolean galleryBuggy;
 
@@ -453,6 +456,9 @@ public class K9 extends Application {
         editor.putBoolean("batchButtonsFlag", mBatchButtonsFlag);
         editor.putBoolean("batchButtonsUnselect", mBatchButtonsUnselect);
         
+        // SHRESHTH
+        editor.putInt("delayTolerance", mDelayTolerance);
+        
         editor.putString("language", language);
         editor.putInt("theme", theme);
         editor.putBoolean("useGalleryBugWorkaround", useGalleryBugWorkaround);
@@ -611,6 +617,9 @@ public class K9 extends Application {
         mBatchButtonsMove = sprefs.getBoolean("batchButtonsMove", true);
         mBatchButtonsFlag = sprefs.getBoolean("batchButtonsFlag", true);
         mBatchButtonsUnselect = sprefs.getBoolean("batchButtonsUnselect", true);
+        
+        // SHRESHTH
+        mDelayTolerance = sprefs.getInt("delayTolerance", 120);
         
         useGalleryBugWorkaround = sprefs.getBoolean("useGalleryBugWorkaround", K9.isGalleryBuggy());
 
@@ -1097,6 +1106,14 @@ public class K9 extends Application {
     }
     public static void setBatchButtonsUnselect(final boolean state) {
     	mBatchButtonsUnselect = state;
+    }
+    
+    // SHRESHTH
+    public static int delayTolerance() {
+    	return mDelayTolerance;
+    }
+    public static void setDelayTolerance(final int state) {
+    	mDelayTolerance = state;
     }
     
     /**
