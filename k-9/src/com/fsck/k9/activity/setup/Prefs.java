@@ -435,6 +435,7 @@ public class Prefs extends K9PreferenceActivity {
         K9.setBatchButtonsFlag(mBatchButtonsFlag.isChecked());
         K9.setBatchButtonsUnselect(mBatchButtonsUnselect.isChecked());
 
+        // SHRESHTH
         K9.setDelayTolerance(mDelayTolerance.getProgress());
         
         K9.setZoomControlsEnabled(mZoomControlsEnabled.isChecked());

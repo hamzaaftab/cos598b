@@ -41,6 +41,8 @@ public class PredictionRequestReceiver extends BroadcastReceiver {
             callback("wifi not enabled");
             return;
         }
+        
+        Utils.toast(mContext, "tolerance is " + tolerance);
 
         // scan for wifi
         scanHandler.post(scanRunnable);
