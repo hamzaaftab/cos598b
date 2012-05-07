@@ -56,6 +56,7 @@ L1 <- function(data, lat_div_size, lng_div_size, bearing_div_size) {
 }
 
 # Libraries
+library('glmnet')
 library('MASS')
 
 # Constants (make sure they stay in sync across all files)
