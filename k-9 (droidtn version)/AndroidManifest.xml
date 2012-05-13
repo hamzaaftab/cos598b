@@ -57,7 +57,7 @@
     <application
         android:icon="@drawable/icon"
         android:label="@string/app_name"
-        android:name="com.fsck.k9.K9"
+        android:name=".K9"
         android:allowTaskReparenting="false"
         >
         <meta-data android:name="android.app.default_searchable"
@@ -375,7 +375,7 @@ otherwise it would make K-9 start at the wrong time
              >
           </service>
          <service
-             android:name="com.fsck.k9.service.SleepService"
+             android:name=".service.SleepService"
              android:enabled="true"
              >
          </service>
@@ -387,7 +387,7 @@ otherwise it would make K-9 start at the wrong time
             android:readPermission="com.fsck.k9.permission.READ_ATTACHMENT"
             />
         <provider
-            android:name="com.fsck.k9.provider.MessageProvider"
+            android:name=".provider.MessageProvider"
             android:authorities="com.fsck.k9.messageprovider"
             android:multiprocess="true"
             android:grantUriPermissions="true"
@@ -396,7 +396,7 @@ otherwise it would make K-9 start at the wrong time
             />
 
         <receiver
-            android:name="com.fsck.k9.provider.UnreadWidgetProvider"
+            android:name=".provider.UnreadWidgetProvider"
             android:label="@string/unread_widget_label"
             android:icon="@drawable/icon">
             <intent-filter>
@@ -412,7 +412,7 @@ otherwise it would make K-9 start at the wrong time
             </intent-filter>
         </activity>
         <activity
-            android:name="com.fsck.k9.activity.AccountList">
+            android:name=".activity.AccountList">
         </activity>
     </application>
 </manifest>
