@@ -2,7 +2,7 @@
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:versionCode="15015"
-    android:versionName="4.116" package="com.fsck.k9"
+    android:versionName="4.116" package="com.fsck.k9droidtn"
     >
     <uses-sdk
        android:minSdkVersion="7"
@@ -57,7 +57,7 @@
     <application
         android:icon="@drawable/icon"
         android:label="@string/app_name"
-        android:name="K9"
+        android:name="com.fsck.k9.K9"
         android:allowTaskReparenting="false"
         >
         <meta-data android:name="android.app.default_searchable"
@@ -396,7 +396,7 @@ otherwise it would make K-9 start at the wrong time
             />
 
         <receiver
-            android:name=".provider.UnreadWidgetProvider"
+            android:name="com.fsck.k9.provider.UnreadWidgetProvider"
             android:label="@string/unread_widget_label"
             android:icon="@drawable/icon">
             <intent-filter>
@@ -406,13 +406,13 @@ otherwise it would make K-9 start at the wrong time
                 android:name="android.appwidget.provider"
                 android:resource="@xml/unread_widget_info" />
         </receiver>
-        <activity android:name=".activity.UnreadWidgetConfiguration">
+        <activity android:name="com.fsck.k9.activity.UnreadWidgetConfiguration">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
             </intent-filter>
         </activity>
         <activity
-            android:name=".activity.AccountList">
+            android:name="com.fsck.k9.activity.AccountList">
         </activity>
     </application>
 </manifest>

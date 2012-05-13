@@ -17,6 +17,7 @@ import com.fsck.k9.mail.store.LocalStore;
 import com.fsck.k9.mail.store.StorageManager;
 import com.fsck.k9.mail.store.StorageManager.StorageProvider;
 import com.fsck.k9.view.ColorChip;
+import com.fsck.k9droidtn.R;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;

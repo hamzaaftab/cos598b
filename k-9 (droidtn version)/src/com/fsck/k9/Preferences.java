@@ -14,6 +14,7 @@ import android.util.Config;
 import android.util.Log;
 import com.fsck.k9.preferences.Editor;
 import com.fsck.k9.preferences.Storage;
+import com.fsck.k9droidtn.R;
 
 public class Preferences {
 

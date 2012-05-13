@@ -10,7 +10,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Toast;
 import com.fsck.k9.K9;
-import com.fsck.k9.R;
+import com.fsck.k9droidtn.R;
 import java.lang.reflect.Method;
 
 public class MessageWebView extends WebView {

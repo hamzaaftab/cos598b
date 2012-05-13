@@ -38,6 +38,7 @@ import com.fsck.k9.service.BootReceiver;
 import com.fsck.k9.service.MailService;
 import com.fsck.k9.service.ShutdownReceiver;
 import com.fsck.k9.service.StorageGoneReceiver;
+import com.fsck.k9droidtn.R;
 
 public class K9 extends Application {
     public static final int THEME_LIGHT = 0;

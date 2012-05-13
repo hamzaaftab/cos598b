@@ -1,5 +1,7 @@
 package com.fsck.k9;
 
+import com.fsck.k9droidtn.R;
+
 /**
  * Describes how a notification should behave.
  */

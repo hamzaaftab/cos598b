@@ -6,7 +6,7 @@ import android.content.Context;
 
 import com.fsck.k9.Account;
 import com.fsck.k9.AccountStats;
-import com.fsck.k9.R;
+import com.fsck.k9droidtn.R;
 import com.fsck.k9.controller.MessagingListener;
 import com.fsck.k9.service.MailService;
 

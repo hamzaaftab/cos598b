@@ -21,7 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.fsck.k9.FontSizes;
 import com.fsck.k9.K9;
-import com.fsck.k9.R;
+import com.fsck.k9droidtn.R;
 import com.fsck.k9.helper.Contacts;
 import com.fsck.k9.Account;
 import com.fsck.k9.helper.DateFormatter;

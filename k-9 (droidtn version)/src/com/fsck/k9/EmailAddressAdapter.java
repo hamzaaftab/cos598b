@@ -18,6 +18,7 @@ package com.fsck.k9;
 
 import com.fsck.k9.helper.Contacts;
 import com.fsck.k9.mail.Address;
+import com.fsck.k9droidtn.R;
 import android.content.Context;
 import android.database.Cursor;
 import android.view.View;

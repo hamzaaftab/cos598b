@@ -2,6 +2,7 @@
 package com.fsck.k9;
 
 import com.fsck.k9.mail.Flag;
+import com.fsck.k9droidtn.R;
 
 public interface SearchSpecification {
 

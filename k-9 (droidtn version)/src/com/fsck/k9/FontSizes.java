@@ -2,6 +2,7 @@ package com.fsck.k9;
 
 import android.content.SharedPreferences;
 import android.webkit.WebSettings.TextSize;
+import com.fsck.k9droidtn.R;
 
 /**
  * Manage font size of the information displayed in the account list, folder

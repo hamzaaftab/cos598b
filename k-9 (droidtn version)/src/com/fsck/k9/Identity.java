@@ -1,5 +1,6 @@
 package com.fsck.k9;
 
+import com.fsck.k9droidtn.R;
 import java.io.Serializable;
 
 public class Identity implements Serializable {

@@ -45,7 +45,7 @@ import com.fsck.k9.K9;
 import com.fsck.k9.K9.Intents;
 import com.fsck.k9.NotificationSetting;
 import com.fsck.k9.Preferences;
-import com.fsck.k9.R;
+import com.fsck.k9droidtn.R;
 import com.fsck.k9.SearchSpecification;
 import com.fsck.k9.activity.FolderList;
 import com.fsck.k9.activity.MessageList;

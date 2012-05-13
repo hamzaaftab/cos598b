@@ -15,7 +15,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.widget.Toast;
 
-import com.fsck.k9.R;
+import com.fsck.k9droidtn.R;
 import com.fsck.k9.activity.MessageCompose;
 import com.fsck.k9.activity.MessageView;
 import com.fsck.k9.mail.Message;

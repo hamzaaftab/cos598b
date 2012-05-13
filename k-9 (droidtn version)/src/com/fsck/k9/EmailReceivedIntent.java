@@ -1,5 +1,7 @@
 package com.fsck.k9;
 
+import com.fsck.k9droidtn.R;
+
 public class EmailReceivedIntent {
 
     public static final String ACTION_EMAIL_RECEIVED = "com.fsck.k9.intent.action.EMAIL_RECEIVED";

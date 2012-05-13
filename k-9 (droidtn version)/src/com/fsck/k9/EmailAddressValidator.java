@@ -3,6 +3,7 @@ package com.fsck.k9;
 
 import android.text.util.Rfc822Tokenizer;
 import android.widget.AutoCompleteTextView.Validator;
+import com.fsck.k9droidtn.R;
 
 public class EmailAddressValidator implements Validator {
     public CharSequence fixText(CharSequence invalidText) {

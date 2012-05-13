@@ -9,7 +9,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 import com.fsck.k9.Identity;
 import com.fsck.k9.Preferences;
-import com.fsck.k9.R;
+import com.fsck.k9droidtn.R;
 
 public class ManageIdentities extends ChooseIdentity {
     private boolean mIdentitiesChanged = false;

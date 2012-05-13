@@ -8,7 +8,7 @@
 
 
 package com.fsck.k9.activity;
-import com.fsck.k9.R;
+import com.fsck.k9droidtn.R;
 import android.app.AlertDialog;
 import android.content.*;
 import android.graphics.Color;
