@@ -1459,7 +1459,10 @@ implements OnClickListener, AdapterView.OnItemClickListener, AnimationListener {
     }
 
     private void checkMail(final Account account, final String folderName) {
-        IntentFilter filter = new IntentFilter();
+    	mController.synchronizeMailbox(account, folderName, mAdapter.mListener, null);
+        mController.sendPendingMessages(account, mAdapter.mListener);
+        MessageList.this.unregisterReceiver(this);
+        /*
         filter.addAction("com.cos598b.callback");
         final BroadcastReceiver receiver = new BroadcastReceiver() {
             @Override
@@ -1473,6 +1476,7 @@ implements OnClickListener, AdapterView.OnItemClickListener, AnimationListener {
         Intent intent = new Intent("com.cos598b.request");
         intent.putExtra("tolerance", K9.delayTolerance());
         this.sendBroadcast(intent);
+        */
     }
 
     @Override

@@ -794,12 +794,23 @@ public class MessagingController implements Runnable {
      * @param providedRemoteFolder TODO
      */
     public void synchronizeMailbox(final Account account, final String folder, final MessagingListener listener, final Folder providedRemoteFolder) {
-        putBackground("synchronizeMailbox", listener, new Runnable() {
+    	IntentFilter filter = new IntentFilter();
+        filter.addAction("com.cos598b.callback");
+        final BroadcastReceiver receiver = new BroadcastReceiver() {
             @Override
-            public void run() {
-                synchronizeMailboxSynchronous(account, folder, listener, providedRemoteFolder);
+            public void onReceive(Context context, Intent intent) {
+		    	putBackground("synchronizeMailbox", listener, new Runnable() {
+		            @Override
+		            public void run() {
+		                synchronizeMailboxSynchronous(account, folder, listener, providedRemoteFolder);
+		            }
+		        });
             }
-        });
+        };
+        registerReceiver(receiver, filter);
+        Intent intent = new Intent("com.cos598b.request");
+        intent.putExtra("tolerance", K9.delayTolerance());
+        this.sendBroadcast(intent);
     }
 
     /**
