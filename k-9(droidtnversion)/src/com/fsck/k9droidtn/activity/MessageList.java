@@ -10,10 +10,8 @@ import java.util.Map;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
@@ -661,7 +659,7 @@ implements OnClickListener, AdapterView.OnItemClickListener, AnimationListener {
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         if (view == mFooterView) {
             if (mCurrentFolder != null) {
-                mController.loadMoreMessages(mAccount, mFolderName, mAdapter.mListener);
+                mController.loadMoreMessages(mAccount, mFolderName, mAdapter.mListener, this);
             }
             return;
         }
@@ -1459,9 +1457,8 @@ implements OnClickListener, AdapterView.OnItemClickListener, AnimationListener {
     }
 
     private void checkMail(final Account account, final String folderName) {
-    	mController.synchronizeMailbox(account, folderName, mAdapter.mListener, null);
+        mController.synchronizeMailbox(account, folderName, mAdapter.mListener, null, this);
         mController.sendPendingMessages(account, mAdapter.mListener);
-        MessageList.this.unregisterReceiver(this);
         /*
         filter.addAction("com.cos598b.callback");
         final BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -1476,7 +1473,7 @@ implements OnClickListener, AdapterView.OnItemClickListener, AnimationListener {
         Intent intent = new Intent("com.cos598b.request");
         intent.putExtra("tolerance", K9.delayTolerance());
         this.sendBroadcast(intent);
-        */
+         */
     }
 
     @Override

@@ -1,6 +1,14 @@
 
 package com.fsck.k9droidtn.activity.setup;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.Collection;
+import java.util.List;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -15,24 +23,20 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import com.fsck.k9droidtn.*;
+
+import com.fsck.k9droidtn.Account;
+import com.fsck.k9droidtn.K9;
+import com.fsck.k9droidtn.Preferences;
+import com.fsck.k9droidtn.R;
 import com.fsck.k9droidtn.activity.K9Activity;
 import com.fsck.k9droidtn.controller.MessagingController;
 import com.fsck.k9droidtn.mail.AuthenticationFailedException;
 import com.fsck.k9droidtn.mail.CertificateValidationException;
 import com.fsck.k9droidtn.mail.Store;
 import com.fsck.k9droidtn.mail.Transport;
+import com.fsck.k9droidtn.mail.filter.Hex;
 import com.fsck.k9droidtn.mail.store.TrustManagerFactory;
 import com.fsck.k9droidtn.mail.store.WebDavStore;
-import com.fsck.k9droidtn.mail.filter.Hex;
-
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509Certificate;
-import java.security.NoSuchAlgorithmException;
-import java.security.MessageDigest;
-import java.util.Collection;
-import java.util.List;
 
 /**
  * Checks the given settings to make sure that they can be used to send and
@@ -68,7 +72,7 @@ public class AccountSetupCheckSettings extends K9Activity implements OnClickList
     private boolean mDestroyed;
 
     public static void actionCheckSettings(Activity context, Account account,
-                                           boolean checkIncoming, boolean checkOutgoing) {
+                    boolean checkIncoming, boolean checkOutgoing) {
         Intent i = new Intent(context, AccountSetupCheckSettings.class);
         i.putExtra(EXTRA_ACCOUNT, account.getUuid());
         i.putExtra(EXTRA_CHECK_INCOMING, checkIncoming);
@@ -119,7 +123,7 @@ public class AccountSetupCheckSettings extends K9Activity implements OnClickList
                             setMessage(R.string.account_setup_check_settings_fetch);
                         }
                         MessagingController.getInstance(getApplication()).listFoldersSynchronous(mAccount, true, null);
-                        MessagingController.getInstance(getApplication()).synchronizeMailbox(mAccount, mAccount.getInboxFolderName(), null, null);
+                        MessagingController.getInstance(getApplication()).synchronizeMailbox(mAccount, mAccount.getInboxFolderName(), null, null, AccountSetupCheckSettings.this);
                     }
                     if (mDestroyed) {
                         return;
@@ -149,26 +153,26 @@ public class AccountSetupCheckSettings extends K9Activity implements OnClickList
                 } catch (final AuthenticationFailedException afe) {
                     Log.e(K9.LOG_TAG, "Error while testing settings", afe);
                     showErrorDialog(
-                        R.string.account_setup_failed_dlg_auth_message_fmt,
-                        afe.getMessage() == null ? "" : afe.getMessage());
+                                    R.string.account_setup_failed_dlg_auth_message_fmt,
+                                    afe.getMessage() == null ? "" : afe.getMessage());
                 } catch (final CertificateValidationException cve) {
                     Log.e(K9.LOG_TAG, "Error while testing settings", cve);
 
                     // Avoid NullPointerException in acceptKeyDialog()
                     if (TrustManagerFactory.getLastCertChain() != null) {
                         acceptKeyDialog(
-                            R.string.account_setup_failed_dlg_certificate_message_fmt,
-                            cve);
+                                        R.string.account_setup_failed_dlg_certificate_message_fmt,
+                                        cve);
                     } else {
                         showErrorDialog(
-                                R.string.account_setup_failed_dlg_server_message_fmt,
-                                (cve.getMessage() == null ? "" : cve.getMessage()));
+                                        R.string.account_setup_failed_dlg_server_message_fmt,
+                                        cve.getMessage() == null ? "" : cve.getMessage());
                     }
                 } catch (final Throwable t) {
                     Log.e(K9.LOG_TAG, "Error while testing settings", t);
                     showErrorDialog(
-                        R.string.account_setup_failed_dlg_server_message_fmt,
-                        (t.getMessage() == null ? "" : t.getMessage()));
+                                    R.string.account_setup_failed_dlg_server_message_fmt,
+                                    t.getMessage() == null ? "" : t.getMessage());
 
                 }
             }
@@ -186,6 +190,7 @@ public class AccountSetupCheckSettings extends K9Activity implements OnClickList
 
     private void setMessage(final int resId) {
         mHandler.post(new Runnable() {
+            @Override
             public void run() {
                 if (mDestroyed) {
                     return;
@@ -197,6 +202,7 @@ public class AccountSetupCheckSettings extends K9Activity implements OnClickList
 
     private void showErrorDialog(final int msgResId, final Object... args) {
         mHandler.post(new Runnable() {
+            @Override
             public void run() {
                 if (mDestroyed) {
                     return;
@@ -207,28 +213,31 @@ public class AccountSetupCheckSettings extends K9Activity implements OnClickList
                 .setMessage(getString(msgResId, args))
                 .setCancelable(true)
                 .setNegativeButton(
-                    getString(R.string.account_setup_failed_dlg_continue_action),
+                                getString(R.string.account_setup_failed_dlg_continue_action),
 
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        mCanceled = false;
-                        setResult(RESULT_OK);
-                        finish();
-                    }
-                })
-                .setPositiveButton(
-                    getString(R.string.account_setup_failed_dlg_edit_details_action),
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        finish();
-                    }
-                })
-                .show();
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        mCanceled = false;
+                                        setResult(RESULT_OK);
+                                        finish();
+                                    }
+                                })
+                                .setPositiveButton(
+                                                getString(R.string.account_setup_failed_dlg_edit_details_action),
+                                                new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which) {
+                                                        finish();
+                                                    }
+                                                })
+                                                .show();
             }
         });
     }
     private void acceptKeyDialog(final int msgResId, final Object... args) {
         mHandler.post(new Runnable() {
+            @Override
             public void run() {
                 if (mDestroyed) {
                     return;
@@ -236,7 +245,7 @@ public class AccountSetupCheckSettings extends K9Activity implements OnClickList
                 final X509Certificate[] chain = TrustManagerFactory.getLastCertChain();
                 String exMessage = "Unknown Error";
 
-                Exception ex = ((Exception)args[0]);
+                Exception ex = (Exception)args[0];
                 if (ex != null) {
                     if (ex.getCause() != null) {
                         if (ex.getCause().getCause() != null) {
@@ -277,8 +286,8 @@ public class AccountSetupCheckSettings extends K9Activity implements OnClickList
                             altNamesText.append("Subject has ").append(subjectAlternativeNames.size()).append(" alternative names\n");
 
                             // we need these for matching
-                            String storeURIHost = (Uri.parse(mAccount.getStoreUri())).getHost();
-                            String transportURIHost = (Uri.parse(mAccount.getTransportUri())).getHost();
+                            String storeURIHost = Uri.parse(mAccount.getStoreUri()).getHost();
+                            String transportURIHost = Uri.parse(mAccount.getTransportUri()).getHost();
 
                             for (List<?> subjectAlternativeName : subjectAlternativeNames) {
                                 Integer type = (Integer)subjectAlternativeName.get(0);
@@ -349,39 +358,41 @@ public class AccountSetupCheckSettings extends K9Activity implements OnClickList
                 .setTitle(getString(R.string.account_setup_failed_dlg_invalid_certificate_title))
                 //.setMessage(getString(R.string.account_setup_failed_dlg_invalid_certificate)
                 .setMessage(getString(msgResId, exMessage)
-                            + " " + chainInfo.toString()
-                           )
-                .setCancelable(true)
-                .setPositiveButton(
-                    getString(R.string.account_setup_failed_dlg_invalid_certificate_accept),
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        try {
-                            String alias = mAccount.getUuid();
-                            if (mCheckIncoming) {
-                                alias = alias + ".incoming";
-                            }
-                            if (mCheckOutgoing) {
-                                alias = alias + ".outgoing";
-                            }
-                            TrustManagerFactory.addCertificateChain(alias, chain);
-                        } catch (CertificateException e) {
-                            showErrorDialog(
-                                R.string.account_setup_failed_dlg_certificate_message_fmt,
-                                e.getMessage() == null ? "" : e.getMessage());
-                        }
-                        AccountSetupCheckSettings.actionCheckSettings(AccountSetupCheckSettings.this, mAccount,
-                                mCheckIncoming, mCheckOutgoing);
-                    }
-                })
-                .setNegativeButton(
-                    getString(R.string.account_setup_failed_dlg_invalid_certificate_reject),
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        finish();
-                    }
-                })
-                .show();
+                                + " " + chainInfo.toString()
+                                )
+                                .setCancelable(true)
+                                .setPositiveButton(
+                                                getString(R.string.account_setup_failed_dlg_invalid_certificate_accept),
+                                                new DialogInterface.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(DialogInterface dialog, int which) {
+                                                        try {
+                                                            String alias = mAccount.getUuid();
+                                                            if (mCheckIncoming) {
+                                                                alias = alias + ".incoming";
+                                                            }
+                                                            if (mCheckOutgoing) {
+                                                                alias = alias + ".outgoing";
+                                                            }
+                                                            TrustManagerFactory.addCertificateChain(alias, chain);
+                                                        } catch (CertificateException e) {
+                                                            showErrorDialog(
+                                                                            R.string.account_setup_failed_dlg_certificate_message_fmt,
+                                                                            e.getMessage() == null ? "" : e.getMessage());
+                                                        }
+                                                        AccountSetupCheckSettings.actionCheckSettings(AccountSetupCheckSettings.this, mAccount,
+                                                                        mCheckIncoming, mCheckOutgoing);
+                                                    }
+                                                })
+                                                .setNegativeButton(
+                                                                getString(R.string.account_setup_failed_dlg_invalid_certificate_reject),
+                                                                new DialogInterface.OnClickListener() {
+                                                                    @Override
+                                                                    public void onClick(DialogInterface dialog, int which) {
+                                                                        finish();
+                                                                    }
+                                                                })
+                                                                .show();
             }
         });
     }
@@ -398,6 +409,7 @@ public class AccountSetupCheckSettings extends K9Activity implements OnClickList
         setMessage(R.string.account_setup_check_settings_canceling_msg);
     }
 
+    @Override
     public void onClick(View v) {
         switch (v.getId()) {
         case R.id.cancel:

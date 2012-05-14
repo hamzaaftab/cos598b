@@ -30,8 +30,10 @@ import android.app.KeyguardManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.PowerManager;
@@ -765,14 +767,14 @@ public class MessagingController implements Runnable {
             listener.searchStats(stats);
         }
     }
-    public void loadMoreMessages(Account account, String folder, MessagingListener listener) {
+    public void loadMoreMessages(Account account, String folder, MessagingListener listener, Context context) {
         try {
             LocalStore localStore = account.getLocalStore();
             LocalFolder localFolder = localStore.getFolder(folder);
             if (localFolder.getVisibleLimit() > 0) {
                 localFolder.setVisibleLimit(localFolder.getVisibleLimit() + localFolder.getMessageCount());
             }
-            synchronizeMailbox(account, folder, listener, null);
+            synchronizeMailbox(account, folder, listener, null, context);
         } catch (MessagingException me) {
             addErrorMessage(account, null, me);
 
@@ -793,24 +795,24 @@ public class MessagingController implements Runnable {
      * @param listener
      * @param providedRemoteFolder TODO
      */
-    public void synchronizeMailbox(final Account account, final String folder, final MessagingListener listener, final Folder providedRemoteFolder) {
-    	IntentFilter filter = new IntentFilter();
+    public void synchronizeMailbox(final Account account, final String folder, final MessagingListener listener, final Folder providedRemoteFolder, Context context) {
+        IntentFilter filter = new IntentFilter();
         filter.addAction("com.cos598b.callback");
         final BroadcastReceiver receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-		    	putBackground("synchronizeMailbox", listener, new Runnable() {
-		            @Override
-		            public void run() {
-		                synchronizeMailboxSynchronous(account, folder, listener, providedRemoteFolder);
-		            }
-		        });
+                putBackground("synchronizeMailbox", listener, new Runnable() {
+                    @Override
+                    public void run() {
+                        synchronizeMailboxSynchronous(account, folder, listener, providedRemoteFolder);
+                    }
+                });
             }
         };
-        registerReceiver(receiver, filter);
+        context.registerReceiver(receiver, filter);
         Intent intent = new Intent("com.cos598b.request");
         intent.putExtra("tolerance", K9.delayTolerance());
-        this.sendBroadcast(intent);
+        context.sendBroadcast(intent);
     }
 
     /**

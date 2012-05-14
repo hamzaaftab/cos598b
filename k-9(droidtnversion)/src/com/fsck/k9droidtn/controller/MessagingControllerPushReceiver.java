@@ -1,5 +1,8 @@
 package com.fsck.k9droidtn.controller;
 
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+
 import android.app.Application;
 import android.content.Context;
 import android.util.Log;
@@ -15,9 +18,6 @@ import com.fsck.k9droidtn.mail.store.LocalStore;
 import com.fsck.k9droidtn.mail.store.LocalStore.LocalFolder;
 import com.fsck.k9droidtn.service.SleepService;
 
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-
 public class MessagingControllerPushReceiver implements PushReceiver {
     final Account account;
     final MessagingController controller;
@@ -29,41 +29,48 @@ public class MessagingControllerPushReceiver implements PushReceiver {
         mApplication = nApplication;
     }
 
+    @Override
     public void messagesFlagsChanged(Folder folder,
-                                     List<Message> messages) {
+                    List<Message> messages) {
         controller.messagesArrived(account, folder, messages, true);
     }
+    @Override
     public void messagesArrived(Folder folder, List<Message> messages) {
         controller.messagesArrived(account, folder, messages, false);
     }
+    @Override
     public void messagesRemoved(Folder folder, List<Message> messages) {
         controller.messagesArrived(account, folder, messages, true);
     }
 
+    @Override
     public void syncFolder(Folder folder) {
-        if (K9.DEBUG)
+        if (K9.DEBUG) {
             Log.v(K9.LOG_TAG, "syncFolder(" + folder.getName() + ")");
+        }
         final CountDownLatch latch = new CountDownLatch(1);
         controller.synchronizeMailbox(account, folder.getName(), new MessagingListener() {
             @Override
             public void synchronizeMailboxFinished(Account account, String folder,
-            int totalMessagesInMailbox, int numNewMessages) {
+                            int totalMessagesInMailbox, int numNewMessages) {
                 latch.countDown();
             }
 
             @Override
             public void synchronizeMailboxFailed(Account account, String folder,
-            String message) {
+                            String message) {
                 latch.countDown();
             }
-        }, folder);
+        }, folder, mApplication.getApplicationContext());
 
-        if (K9.DEBUG)
+        if (K9.DEBUG) {
             Log.v(K9.LOG_TAG, "syncFolder(" + folder.getName() + ") about to await latch release");
+        }
         try {
             latch.await();
-            if (K9.DEBUG)
+            if (K9.DEBUG) {
                 Log.v(K9.LOG_TAG, "syncFolder(" + folder.getName() + ") got latch release");
+            }
         } catch (Exception e) {
             Log.e(K9.LOG_TAG, "Interrupted while awaiting latch release", e);
         }
@@ -74,6 +81,7 @@ public class MessagingControllerPushReceiver implements PushReceiver {
         SleepService.sleep(mApplication, millis, wakeLock, K9.PUSH_WAKE_LOCK_TIMEOUT);
     }
 
+    @Override
     public void pushError(String errorMessage, Exception e) {
         String errMess = errorMessage;
 
@@ -83,6 +91,7 @@ public class MessagingControllerPushReceiver implements PushReceiver {
         controller.addErrorMessage(account, errMess, e);
     }
 
+    @Override
     public String getPushState(String folderName) {
         LocalFolder localFolder = null;
         try {
@@ -92,7 +101,7 @@ public class MessagingControllerPushReceiver implements PushReceiver {
             return localFolder.getPushState();
         } catch (Exception e) {
             Log.e(K9.LOG_TAG, "Unable to get push state from account " + account.getDescription()
-                  + ", folder " + folderName, e);
+                            + ", folder " + folderName, e);
             return null;
         } finally {
             if (localFolder != null) {
@@ -101,6 +110,7 @@ public class MessagingControllerPushReceiver implements PushReceiver {
         }
     }
 
+    @Override
     public void setPushActive(String folderName, boolean enabled) {
         for (MessagingListener l : controller.getListeners()) {
             l.setPushActive(account, folderName, enabled);
